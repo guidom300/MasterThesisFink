@@ -8,7 +8,7 @@ import org.apache.flink.api.scala.table._
  * This program implements a modified version of the TPC-H query 3. The
  * example demonstrates how to assign names to fields by extending the Tuple class.
  * The original query can be found at
- * Reference: http://www.tpc.org/tpc_documents_current_versions/pdf/tpch2.17.1.pdf (29p)
+ * Reference: http://www.tpc.org/tpc_documents_current_versions/pdf/tpch2.17.1.pdf (33p)
  *
  * This program implements the following SQL equivalent:
  *
@@ -67,24 +67,26 @@ object TPCHQuery3Table {
     val env = ExecutionEnvironment.getExecutionEnvironment
 
     val lineitems = getLineitemDataSet(env)
+      // 5) where l_shipdate > data '[DATE]'
       .filter( l => dateFormat.parse(l.shipDate).after(date) )
       .as('id, 'extdPrice, 'discount, 'shipDate)
 
     val customers = getCustomerDataSet(env)
       .as('id, 'mktSegment)
-      .filter( 'mktSegment === "AUTOMOBILE" )
+      .filter( 'mktSegment === "AUTOMOBILE" ) // 1) where c_mktsegment = '[SEGMENT]'
 
     val orders = getOrdersDataSet(env)
+      // 4) where o_orderdate < data '[DATE]'
       .filter( o => dateFormat.parse(o.orderDate).before(date) )
       .as('orderId, 'custId, 'orderDate, 'shipPrio)
 
     val items =
       orders.join(customers)
-        .where('custId === 'id)
+        .where('custId === 'id) // 2) where c_custkey = o_custKey
         .select('orderId, 'orderDate, 'shipPrio)
         .join(lineitems)
-        .where('orderId === 'id)
-        .select(
+        .where('orderId === 'id) // 3) where l_orderkey = o_orderkey
+        .select(  // SELCT l_orderkey, sum(l_extendedprice*(1-l_discount)) as revence, o_orderdate, o_shippriority
           'orderId,
           'extdPrice * (Literal(1.0f) - 'discount) as 'revenue,
           'orderDate,
