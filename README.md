@@ -10,3 +10,5 @@ MasterThesisTest
 
 ### Guido
 **Query: 01,**
+
+**We have to make a document about Flink API compatitable to Hive Functino on Google Docs**
