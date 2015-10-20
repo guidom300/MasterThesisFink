@@ -2,6 +2,7 @@
 MasterThesisTest
 
 *Studyiung Table API; example is TPCH Query*
+
 *Query Folder Scala from Philip, Java from Guido*
 
 ### Philip 
