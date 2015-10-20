@@ -1,0 +1,8 @@
+org/myorg/quickstart/WordCount.class
+org/myorg/quickstart/Query1$PointAssigner.class
+org/myorg/quickstart/Query1$MakePairs.class
+org/myorg/quickstart/Query1.class
+org/myorg/quickstart/Query1$DistinctReduce.class
+org/myorg/quickstart/WordCount$LineSplitter.class
+org/myorg/quickstart/Query1$Sale.class
+org/myorg/quickstart/Query1$FilterCounts.class

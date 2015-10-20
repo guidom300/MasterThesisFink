@@ -1,0 +1,13 @@
+<component name="libraryTable">
+  <library name="Maven: org.apache.flink:flink-table:0.10-SNAPSHOT">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.10-SNAPSHOT/flink-table-0.10-20151020.094623-293.jar!/" />
+    </CLASSES>
+    <JAVADOC>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.10-SNAPSHOT/flink-table-0.10-20151020.094623-293-javadoc.jar!/" />
+    </JAVADOC>
+    <SOURCES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.10-SNAPSHOT/flink-table-0.10-20151020.094623-293-sources.jar!/" />
+    </SOURCES>
+  </library>
+</component>
