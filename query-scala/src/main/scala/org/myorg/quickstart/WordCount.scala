@@ -36,6 +36,8 @@ object WordCount {
     // set up the execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
+
+    /*
     // get input data
     val text = env.fromElements("2 2 2 2 2")
 
@@ -44,9 +46,14 @@ object WordCount {
       .map(pages => (pages.toDouble, 1.0))
       .reduce((t1,t2) => Tuple2((t1._1 +t2._1),(t1._2 +t2._2)))
       .map(items => (items._1/items._2))
+    */
+
+    val itemList: DataSet[List[Int]] = env.fromElements(List(1,2,3),List(4,5,6),List(7,8))
+
+    val result = itemList.flatMap(items => for (a <- items; b <- items; if a < b) yield Seq(a, b))
 
     // execute and print result
-    counts.print()
+    result.print()
 
   }
 }

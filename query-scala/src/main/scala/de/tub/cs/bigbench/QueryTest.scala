@@ -45,8 +45,11 @@ object QueryTest{
       .groupBy(1)                                                                       //  GROUP BY sessionId
       .reduceGroup(in => in.map(v => v._1).toSet.toSeq.sorted)                          // collect_set(wcs_item_sk) as itemArray    //.reduceGroup(new MyCollectSetReducer).as(`itemArray)
       .filter(items => items.contains(searchItem))                                      // HAVING array_contains(itemArray, cast(q02 AS BIGINT))
+
+    val result = pairs.first(2)
       .flatMap(items => for (a <- items; b <- items; if a < b) yield Tuple2(a, b))      // makePairs(sort_array(itemArray), false) as item_1, item_2
 
+    /*
     val realQuery = pairs
       .filter(items => (items._1 == searchItem) || (items._2 == searchItem))            // Where item_1 = searchItem || item_2 == searchIte
       .map{items => (items._1,items._2,1)}
@@ -54,7 +57,7 @@ object QueryTest{
       .sum(2)
       .sortPartition(2,Order.DESCENDING).setParallelism(1)
       .first(limitPeoeple).print()
-
+    */
     //env.execute("Big Bench Query2 Test")
   }
 
