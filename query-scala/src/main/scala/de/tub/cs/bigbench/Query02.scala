@@ -7,11 +7,14 @@ import org.apache.flink.api.scala.table._
 import org.apache.flink.util.Collector
 
 /*
- * Questions;
- * Distribute By == partitionByHash
- * toDataSet == toTable
- * groupBy() for ordering of sorting, so it could be different because SQL ORDERBY, which takes columns in a order is different
  * Edit Conf: /home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  10001 /home/jjoon/bigBench/results 30
+ * Questions;
+ * Distribute By == partitionByHash  could be same?
+ * toDataSet == toTable for Performance to change
+ * groupBy() for ordering of sorting, so it could be different because SQL ORDERBY, which takes columns in a order is different *
+ * Ignore Dataset
+ * SenssionId on Query02 of Hive Version
+ *
  */
 
 
@@ -53,8 +56,8 @@ object Query02{
       .sum(2)
       .sortPartition(2,Order.DESCENDING).setParallelism(1)                                // ORDER BY cnt DESC, item_1, item_2
       // groupBy() for ordering of sorting
-      //.sortPartition(1,Order.ASCENDING).setParallelism(1)
-      //.sortPartition(0,Order.ASCENDING).setParallelism(1)
+      .sortPartition(1,Order.ASCENDING).setParallelism(1)
+      .sortPartition(0,Order.ASCENDING).setParallelism(1)
 
       .first(limitPeoeple).print()
 

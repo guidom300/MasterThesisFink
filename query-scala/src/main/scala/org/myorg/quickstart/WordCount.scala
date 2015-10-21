@@ -37,14 +37,13 @@ object WordCount {
     val env = ExecutionEnvironment.getExecutionEnvironment
 
     // get input data
-    val text = env.fromElements("To be, or not to be,--that is the question:--",
-      "Whether 'tis nobler in the mind to suffer", "The slings and arrows of outrageous fortune",
-      "Or to take arms against a sea of troubles,")
+    val text = env.fromElements("2 2 2 2 2")
 
-    val counts = text.flatMap { _.toLowerCase.split("\\W+") }
-      .map { (_, 1) }
-      .groupBy(0)
-      .sum(1)
+    // SELECT SUM(pages) / Count(*) FROM TABLE
+    val counts = text.flatMap {_.toLowerCase.split("\\W+")}
+      .map(pages => (pages.toDouble, 1.0))
+      .reduce((t1,t2) => Tuple2((t1._1 +t2._1),(t1._2 +t2._2)))
+      .map(items => (items._1/items._2))
 
     // execute and print result
     counts.print()
