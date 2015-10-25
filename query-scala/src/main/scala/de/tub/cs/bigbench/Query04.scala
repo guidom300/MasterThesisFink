@@ -16,6 +16,10 @@ import org.apache.flink.util.Collector
  * apply function vs map function
  * wcs_sales_sk == NULL
  *
+ * TODO:
+ * .map(pageCount => Tuple2(pageCount.toDouble,1.0))
+ * .sortBy
+ * Check reduceShopCartPython
  */
 /*
 
@@ -60,8 +64,7 @@ object Query04{
       .sortGroup(1,Order.ASCENDING)
       //.sortPartition(1,Order.ASCENDING)
       //.sortPartition(0,Order.ASCENDING)
-      .reduceGroup(new reduceShopCartPython)                // args: _type, tst_amp, _sessionId
-      //.reduceGroup((in: Iterator[new TmpSession], out : Collector[(Int)]) => reduceShopCartPython(in, out))   // return _session_row_counterer
+      .reduceGroup((in, out : Collector[(Int)]) => reduceShopCartPython(in, out))   // return _session_row_counterer
       .map(pageCount => Tuple2(pageCount.toDouble,1.0))				// SELECT SUM(Pages) / Coun(*)
       .reduce((t1,t2) => (t1._1 + t2._1), (t1._2,t2._2))
       .map(item => (item._1 / item._2))
@@ -98,44 +101,41 @@ object Query04{
     }
   }
 
-  @Combinable
-  class reduceShopCartPython extends RichGroupReduceFunction[(String, Long, String),Int] {
-    override def reduce(in: Iterable[(String, Long, String)], out: Collector[Int]) = {
+  // Iterator( _type, tst_amp, _sessionId)
+  def reduceShopCartPython(in: Iterator[(String, Long, String)], out : Collector[(Int)]) = {
 
-      // def reduceShopCartPython(in: Iterator[TmpSession], out : Collector[(Int)]) = {
+    var userType: String = 0
+    var sessionId: String = null
 
-      var userType: String = 0
-      var sessionId: String = null
-
-      var session_row_counter = 0
-      var current_key: String = null
-      var last_order_row = -1
-      var last_dynamic_row = -1
+    var session_row_counter = 0
+    var current_key: String = null
+    var last_order_row = -1
+    var last_dynamic_row = -1
 
 
-      in.foreach { userInfo =>
-        userType = userInfo._1
-        sessionId = userInfo._3
+    in.foreach { userInfo =>
+      userType = userInfo._1
+      sessionId = userInfo._3
 
-        if (last_dynamic_row > last_order_row)
-          out.collect(session_row_counter)
-
-        session_row_counter = 1
-        current_key = sessionId
-        last_order_row = -1
-        last_dynamic_row = -1
-
-        if (userType.equals("order"))
-          last_order_row = session_row_counter
-
-        if (userType.equals("dynamic"))
-          last_dynamic_row = session_row_counter
-
-      }
       if (last_dynamic_row > last_order_row)
         out.collect(session_row_counter)
+
+      session_row_counter = 1
+      current_key = sessionId
+      last_order_row = -1
+      last_dynamic_row = -1
+
+      if (userType.equals("order"))
+        last_order_row = session_row_counter
+
+      if (userType.equals("dynamic"))
+        last_dynamic_row = session_row_counter
+
     }
+    if (last_dynamic_row > last_order_row)
+      out.collect(session_row_counter)
   }
+
 
 
   // *************************************************************************

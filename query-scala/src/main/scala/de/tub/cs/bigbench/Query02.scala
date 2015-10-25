@@ -16,6 +16,7 @@ import org.apache.flink.util.Collector
  * SenssionId on Query02 of Hive Version
  *
  */
+//
 
 
 object Query02{
