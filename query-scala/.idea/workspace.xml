@@ -1,7 +1,93 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="c9faebb2-70f0-4713-a091-c01d9bdbce2f" name="Default" comment="" />
+    <list default="true" id="c9faebb2-70f0-4713-a091-c01d9bdbce2f" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query04.scala" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$2$$anonfun$apply$2.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$4$$anonfun$apply$3$$anonfun$apply$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$4$$anonfun$apply$3$$anonfun$apply$4.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$4$$anonfun$apply$3.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$10$$anon$4.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$10$$anonfun$createSerializer$4.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$11$$anon$5.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$11$$anonfun$createSerializer$5.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$11.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$12$$anon$8.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$12.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$6$$anon$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$6$$anonfun$createSerializer$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$7$$anon$2.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$7$$anonfun$createSerializer$2.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$7.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$9$$anon$3.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$9$$anonfun$createSerializer$3.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$5.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$6.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$MyCollectSetReducer$$anonfun$7.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$$anon$2$$anon$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$$anon$2$$anonfun$createSerializer$1.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$$anon$2.class" afterPath="" />
+      <change type="DELETED" beforePath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$$anonfun$2.class" afterPath="" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$10$$anon$7.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$10$$anon$7.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$10.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$10.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$5$$anon$1.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$5$$anon$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$5$$anonfun$createSerializer$1.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$5$$anonfun$createSerializer$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$5.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$5.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$6$$anon$2.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$6$$anon$2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$6$$anonfun$createSerializer$2.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$6$$anonfun$createSerializer$2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$6.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$6.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$8$$anon$3.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$8$$anon$3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$8$$anonfun$createSerializer$3.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$8$$anonfun$createSerializer$3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$8.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$8.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$9$$anon$4.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$9$$anon$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$9$$anonfun$createSerializer$4.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$9$$anonfun$createSerializer$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$9.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anon$9.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$1.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$2.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$2.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$3.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$4.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$5.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$5.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$6.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$6.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$reducePython$1.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$$anonfun$reducePython$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$ClickWebPageType$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$ClickWebPageType$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$ClickWebPageType.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$ClickWebPageType.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$CollectedList$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$CollectedList$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$CollectedList.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$CollectedList.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$TmpSession$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$TmpSession$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$TmpSession.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$TmpSession.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$WebClick$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$WebClick$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$WebClick.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02$WebClick.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query02.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$10.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$10.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$6.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$6.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$9.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anon$9.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4$$anonfun$apply$3$$anonfun$apply$1.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4$$anonfun$apply$3$$anonfun$apply$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4$$anonfun$apply$3$$anonfun$apply$4.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4$$anonfun$apply$3$$anonfun$apply$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4$$anonfun$apply$3.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4$$anonfun$apply$3.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$4.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$reducePython$1.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$$anonfun$reducePython$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$ClickWebPageType$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$ClickWebPageType$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$ClickWebPageType.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$ClickWebPageType.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$CollectedList$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$CollectedList$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$CollectedList.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$CollectedList.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$MyCollectSetReducer.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$MyCollectSetReducer.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$TmpSession$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$TmpSession$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$TmpSession.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$TmpSession.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$WebClick$.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$WebClick$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$WebClick.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest$WebClick.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest.class" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/QueryTest.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$$anonfun$1.class" afterPath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$$anonfun$1.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$.class" afterPath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount$.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount.class" afterPath="$PROJECT_DIR$/target/classes/org/myorg/quickstart/WordCount.class" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query Results" afterPath="$PROJECT_DIR$/target/classes/de/tub/cs/bigbench/Query Results" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala" afterPath="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala" afterPath="$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="$PROJECT_DIR$/.idea/vcs.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
+    </list>
     <ignored path="quickstart.iws" />
     <ignored path=".idea/workspace.xml" />
     <ignored path="$PROJECT_DIR$/target/" />
@@ -24,11 +110,11 @@
   </component>
   <component name="FileEditorManager">
     <leaf>
-      <file leaf-file-name="Query02.scala" pinned="false" current-in-tab="false">
+      <file leaf-file-name="Query02.scala" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0">
-              <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.23890784">
+              <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
               <folding>
                 <element signature="e#28#78#0" expanded="true" />
               </folding>
@@ -36,29 +122,130 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="pom.xml" pinned="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/pom.xml">
+      <file leaf-file-name="Object.java" pinned="false" current-in-tab="false">
+        <entry file="jar:///usr/lib/jvm/java-7-oracle/src.zip!/java/lang/Object.java">
           <provider selected="true" editor-type-id="text-editor">
             <state vertical-scroll-proportion="0.0">
-              <caret line="84" column="20" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="QueryTest.scala" pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.76877236">
-              <caret line="43" column="29" selection-start-line="0" selection-start-column="0" selection-end-line="207" selection-end-column="0" />
+              <caret line="80" column="64" selection-start-line="80" selection-start-column="64" selection-end-line="80" selection-end-column="64" />
               <folding>
-                <element signature="e#28#107#0" expanded="true" />
+                <element signature="e#0#25910#0" expanded="false" />
+                <element signature="e#5860#5861#0" expanded="false" />
+                <element signature="e#5896#5897#0" expanded="false" />
+                <element signature="e#10180#10181#0" expanded="false" />
+                <element signature="e#10263#10264#0" expanded="false" />
               </folding>
             </state>
           </provider>
         </entry>
       </file>
+      <file leaf-file-name="Table.scala" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.9.1/flink-table-0.9.1-sources.jar!/org/apache/flink/api/table/Table.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="17" column="9" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="34" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Row.scala" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.9.1/flink-table-0.9.1-sources.jar!/org/apache/flink/api/table/Row.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="23" column="6" selection-start-line="23" selection-start-column="6" selection-end-line="23" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="RowSerializer.scala" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.9.1/flink-table-0.9.1-sources.jar!/org/apache/flink/api/table/typeinfo/RowSerializer.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="27" column="6" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="6" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="PartitionOperatorBase.java" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1-sources.jar!/org/apache/flink/api/common/operators/base/PartitionOperatorBase.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="34" column="63" selection-start-line="34" selection-start-column="63" selection-end-line="34" selection-end-column="63" />
+              <folding>
+                <element signature="e#0#3529#0" expanded="false" />
+                <element signature="imports" expanded="false" />
+                <element signature="e#2482#2483#0" expanded="false" />
+                <element signature="e#2516#2517#0" expanded="false" />
+                <element signature="e#2566#2567#0" expanded="false" />
+                <element signature="e#2597#2598#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="SingleInputOperator.java" pinned="false" current-in-tab="false">
+        <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1-sources.jar!/org/apache/flink/api/common/operators/SingleInputOperator.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="36" column="22" selection-start-line="36" selection-start-column="22" selection-end-line="36" selection-end-column="22" />
+              <folding>
+                <element signature="e#0#7099#0" expanded="false" />
+                <element signature="imports" expanded="false" />
+                <element signature="e#3559#3560#0" expanded="false" />
+                <element signature="e#3583#3584#0" expanded="false" />
+                <element signature="e#3648#3649#0" expanded="false" />
+                <element signature="e#3672#3673#0" expanded="false" />
+                <element signature="e#3843#3844#0" expanded="false" />
+                <element signature="e#3868#3869#0" expanded="false" />
+                <element signature="e#4159#4160#0" expanded="false" />
+                <element signature="e#4219#4220#0" expanded="false" />
+                <element signature="e#4936#4937#0" expanded="false" />
+                <element signature="e#5002#5003#0" expanded="false" />
+                <element signature="e#5597#5598#0" expanded="false" />
+                <element signature="e#5634#5635#0" expanded="false" />
+                <element signature="e#5927#5928#0" expanded="false" />
+                <element signature="e#5942#5943#0" expanded="false" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="Query04.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query04.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="62" column="73" selection-start-line="62" selection-start-column="73" selection-end-line="62" selection-end-column="73" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="WordCount.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="46" column="16" selection-start-line="46" selection-start-column="16" selection-end-line="46" selection-end-column="16" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="QueryTest.scala" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="79" column="28" selection-start-line="79" selection-start-column="28" selection-end-line="79" selection-end-column="28" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
     </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/.." />
   </component>
   <component name="GradleLocalSettings">
     <option name="externalProjectsViewState">
@@ -70,8 +257,11 @@
       <list>
         <option value="$PROJECT_DIR$/src/main/scala/de/tub/cs/testDB/tableDB.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/de/tub/cs/testDB/TPCHQuery3Table.scala" />
-        <option value="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala" />
         <option value="$PROJECT_DIR$/pom.xml" />
+        <option value="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query Results" />
+        <option value="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala" />
+        <option value="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query04.scala" />
         <option value="$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala" />
       </list>
     </option>
@@ -92,11 +282,11 @@
     <order />
   </component>
   <component name="ProjectFrameBounds">
-    <option name="x" value="1919" />
-    <option name="width" value="2562" />
-    <option name="height" value="1440" />
+    <option name="x" value="885" />
+    <option name="width" value="1036" />
+    <option name="height" value="1055" />
   </component>
-  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+  <component name="ProjectLevelVcsManager" settingsEditedManually="true">
     <OptionsSetting value="true" id="Add" />
     <OptionsSetting value="true" id="Remove" />
     <OptionsSetting value="true" id="Checkout" />
@@ -120,8 +310,6 @@
     </navigator>
     <panes>
       <pane id="Scratches" />
-      <pane id="PackagesPane" />
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -161,6 +349,96 @@
               <option name="myItemId" value="scala" />
               <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
             </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="quickstart" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="query-scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="query-scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bigbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="QueryTest.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="query-scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="query-scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bigbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Query04.scala" />
+              <option name="myItemType" value="org.jetbrains.plugins.scala.components.ScalaDefsProjectViewProvider$ScalaFileTreeNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="query-scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="query-scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="src" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="scala" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="bigbench" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
           </PATH>
           <PATH>
             <PATH_ELEMENT>
@@ -182,10 +460,12 @@
           </PATH>
         </subPane>
       </pane>
+      <pane id="PackagesPane" />
+      <pane id="Scope" />
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="last_opened_file_path" value="$USER_HOME$/flinkTest/test_TPCH" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$/../../useCaseZ1" />
     <property name="recentsLimit" value="5" />
     <property name="dynamic.classpath" value="false" />
     <property name="FullScreen" value="false" />
@@ -225,6 +505,46 @@
       <option name="MAIN_CLASS_NAME" value="de.tub.cs.bigbench.Query02" />
       <option name="VM_PARAMETERS" value="" />
       <option name="PROGRAM_PARAMETERS" value="$USER_HOME$/bigBench/data-generator/output/web_clickstreams.dat  10001 $USER_HOME$/bigBench/results 30" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="quickstart" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="QueryTest" type="Application" factoryName="Application" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="de.tub.cs.bigbench.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="de.tub.cs.bigbench.QueryTest" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="$USER_HOME$/bigBench/data-generator/output/web_clickstreams.dat  10001 $USER_HOME$/bigBench/results 30" />
+      <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
+      <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
+      <option name="ALTERNATIVE_JRE_PATH" value="" />
+      <option name="ENABLE_SWING_INSPECTOR" value="false" />
+      <option name="ENV_VARIABLES" />
+      <option name="PASS_PARENT_ENVS" value="true" />
+      <module name="quickstart" />
+      <envs />
+      <method />
+    </configuration>
+    <configuration default="false" name="Query04" type="Application" factoryName="Application" temporary="true">
+      <extension name="coverage" enabled="false" merge="false" sample_coverage="true" runner="idea">
+        <pattern>
+          <option name="PATTERN" value="de.tub.cs.bigbench.*" />
+          <option name="ENABLED" value="true" />
+        </pattern>
+      </extension>
+      <option name="MAIN_CLASS_NAME" value="de.tub.cs.bigbench.Query04" />
+      <option name="VM_PARAMETERS" value="" />
+      <option name="PROGRAM_PARAMETERS" value="$USER_HOME$/bigBench/data-generator/output/web_clickstreams.dat  $USER_HOME$/bigBench/data-generator/output/web_page.dat home/jjoon/bigBench/results" />
       <option name="WORKING_DIRECTORY" value="file://$PROJECT_DIR$" />
       <option name="ALTERNATIVE_JRE_PATH_ENABLED" value="false" />
       <option name="ALTERNATIVE_JRE_PATH" value="" />
@@ -443,14 +763,18 @@
       <envs />
       <method />
     </configuration>
-    <list size="2">
+    <list size="4">
       <item index="0" class="java.lang.String" itemvalue="Application.WordCount" />
       <item index="1" class="java.lang.String" itemvalue="Application.Query02" />
+      <item index="2" class="java.lang.String" itemvalue="Application.QueryTest" />
+      <item index="3" class="java.lang.String" itemvalue="Application.Query04" />
     </list>
     <recent_temporary>
-      <list size="2">
+      <list size="4">
         <item index="0" class="java.lang.String" itemvalue="Application.Query02" />
-        <item index="1" class="java.lang.String" itemvalue="Application.WordCount" />
+        <item index="1" class="java.lang.String" itemvalue="Application.Query04" />
+        <item index="2" class="java.lang.String" itemvalue="Application.WordCount" />
+        <item index="3" class="java.lang.String" itemvalue="Application.QueryTest" />
       </list>
     </recent_temporary>
   </component>
@@ -472,31 +796,41 @@
     </task>
     <servers />
   </component>
+  <component name="TodoView">
+    <todo-panel id="selected-file">
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+    <todo-panel id="all">
+      <are-packages-shown value="true" />
+      <is-autoscroll-to-source value="true" />
+    </todo-panel>
+  </component>
   <component name="ToolWindowManager">
-    <frame x="1919" y="0" width="2562" height="1440" extended-state="6" />
+    <frame x="885" y="0" width="1036" height="1055" extended-state="4" />
     <editor active="true" />
     <layout>
-      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="UI Designer" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Palette&#9;" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32994923" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32994923" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32946634" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
-      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
-      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
-      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
-      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32869297" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Application Servers" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
-      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.24582338" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
-      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32869297" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.25809717" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="2" side_tool="true" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="true" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32929516" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
+      <window_info id="Documentation" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="FLOATING" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" x="791" y="1029" width="1002" height="688" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32946634" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32819384" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.41960353" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
     </layout>
@@ -521,6 +855,117 @@
     <option name="FILTER_TARGETS" value="false" />
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="84" column="20" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="9" column="116" selection-start-line="9" selection-start-column="14" selection-end-line="9" selection-end-column="116" />
+          <folding>
+            <element signature="e#28#78#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="67" column="33" selection-start-line="67" selection-start-column="33" selection-end-line="67" selection-end-column="33" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query Results">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="84" column="20" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding>
+            <element signature="e#28#78#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="41" column="31" selection-start-line="41" selection-start-column="31" selection-end-line="41" selection-end-column="31" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="50" column="3" selection-start-line="50" selection-start-column="3" selection-end-line="50" selection-end-column="3" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query Results">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="84" column="20" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="36" column="0" selection-start-line="36" selection-start-column="0" selection-end-line="36" selection-end-column="0" />
+          <folding>
+            <element signature="e#28#78#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/pom.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="84" column="20" selection-start-line="84" selection-start-column="20" selection-end-line="84" selection-end-column="20" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -535,9 +980,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
           <caret line="0" column="26" selection-start-line="0" selection-start-column="26" selection-end-line="0" selection-end-column="26" />
-          <folding>
-            <element signature="e#28#107#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -600,13 +1042,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.34129694">
-          <caret line="20" column="35" selection-start-line="20" selection-start-column="35" selection-end-line="20" selection-end-column="35" />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/pom.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
@@ -615,22 +1050,234 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala">
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query Results">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0">
-          <caret line="7" column="0" selection-start-line="7" selection-start-column="0" selection-end-line="7" selection-end-column="0" />
+          <caret line="17" column="16" selection-start-line="17" selection-start-column="16" selection-end-line="17" selection-end-column="16" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1.jar!/org/apache/flink/api/common/operators/base/PartitionOperatorBase.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5046528">
+          <caret line="65" column="8" selection-start-line="65" selection-start-column="8" selection-end-line="65" selection-end-column="8" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/scala-lang/scala-library/2.10.4/scala-library-2.10.4.jar!/scala/Predef.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.042949177">
+          <caret line="4" column="7" selection-start-line="4" selection-start-column="7" selection-end-line="4" selection-end-column="7" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1.jar!/org/apache/flink/api/common/typeutils/CompositeType.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.06442376">
+          <caret line="14" column="22" selection-start-line="14" selection-start-column="22" selection-end-line="14" selection-end-column="22" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-java/0.9.1/flink-java-0.9.1.jar!/org/apache/flink/api/java/operators/Keys.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-34.82143">
+          <caret line="230" column="51" selection-start-line="230" selection-start-column="51" selection-end-line="230" selection-end-column="51" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-scala/0.9.1/flink-scala-0.9.1-sources.jar!/org/apache/flink/api/scala/ExecutionEnvironment.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.73333335">
+          <caret line="249" column="18" selection-start-line="249" selection-start-column="18" selection-end-line="249" selection-end-column="18" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1.jar!/org/apache/flink/api/common/io/GenericCsvInputFormat.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-5.8965516">
+          <caret line="178" column="39" selection-start-line="178" selection-start-column="19" selection-end-line="178" selection-end-column="39" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-java/0.9.1/flink-java-0.9.1.jar!/org/apache/flink/api/java/operators/PartitionOperator.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="1.4285715">
+          <caret line="71" column="0" selection-start-line="71" selection-start-column="0" selection-end-line="71" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1-sources.jar!/org/apache/flink/api/common/io/GenericCsvInputFormat.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="221" column="19" selection-start-line="221" selection-start-column="19" selection-end-line="221" selection-end-column="19" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-java/0.9.1/flink-java-0.9.1-sources.jar!/org/apache/flink/api/java/operators/Keys.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="326" column="21" selection-start-line="326" selection-start-column="21" selection-end-line="326" selection-end-column="21" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-java/0.9.1/flink-java-0.9.1-sources.jar!/org/apache/flink/api/java/operators/SingleInputOperator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="64" column="75" selection-start-line="64" selection-start-column="75" selection-end-line="64" selection-end-column="75" />
           <folding>
-            <element signature="e#28#78#0" expanded="true" />
+            <element signature="e#0#2340#0" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#1646#1647#0" expanded="false" />
+            <element signature="e#1670#1671#0" expanded="false" />
+            <element signature="e#1915#1916#0" expanded="false" />
+            <element signature="e#1949#1950#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1-sources.jar!/org/apache/flink/api/common/operators/base/PartitionOperatorBase.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="34" column="63" selection-start-line="34" selection-start-column="63" selection-end-line="34" selection-end-column="63" />
+          <folding>
+            <element signature="e#0#3529#0" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#2482#2483#0" expanded="false" />
+            <element signature="e#2516#2517#0" expanded="false" />
+            <element signature="e#2566#2567#0" expanded="false" />
+            <element signature="e#2597#2598#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-core/0.9.1/flink-core-0.9.1-sources.jar!/org/apache/flink/api/common/operators/SingleInputOperator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="36" column="22" selection-start-line="36" selection-start-column="22" selection-end-line="36" selection-end-column="22" />
+          <folding>
+            <element signature="e#0#7099#0" expanded="false" />
+            <element signature="imports" expanded="false" />
+            <element signature="e#3559#3560#0" expanded="false" />
+            <element signature="e#3583#3584#0" expanded="false" />
+            <element signature="e#3648#3649#0" expanded="false" />
+            <element signature="e#3672#3673#0" expanded="false" />
+            <element signature="e#3843#3844#0" expanded="false" />
+            <element signature="e#3868#3869#0" expanded="false" />
+            <element signature="e#4159#4160#0" expanded="false" />
+            <element signature="e#4219#4220#0" expanded="false" />
+            <element signature="e#4936#4937#0" expanded="false" />
+            <element signature="e#5002#5003#0" expanded="false" />
+            <element signature="e#5597#5598#0" expanded="false" />
+            <element signature="e#5634#5635#0" expanded="false" />
+            <element signature="e#5927#5928#0" expanded="false" />
+            <element signature="e#5942#5943#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-java/0.9.1/flink-java-0.9.1-sources.jar!/org/apache/flink/api/java/operators/PartitionOperator.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-1.5897436">
+          <caret line="109" column="100" selection-start-line="109" selection-start-column="81" selection-end-line="109" selection-end-column="100" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-scala/0.9.1/flink-scala-0.9.1-sources.jar!/org/apache/flink/api/scala/package.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.24698795">
+          <caret line="42" column="0" selection-start-line="42" selection-start-column="0" selection-end-line="42" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-scala/0.9.1/flink-scala-0.9.1-sources.jar!/org/apache/flink/api/scala/DataSet.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.33333334">
+          <caret line="1129" column="6" selection-start-line="1129" selection-start-column="6" selection-end-line="1129" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.9.1/flink-table-0.9.1.jar!/org/apache/flink/api/table/Row.class">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.53571427">
+          <caret line="1" column="6" selection-start-line="1" selection-start-column="6" selection-end-line="1" selection-end-column="6" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.9.1/flink-table-0.9.1-sources.jar!/org/apache/flink/api/table/Row.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="23" column="6" selection-start-line="23" selection-start-column="6" selection-end-line="23" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.9.1/flink-table-0.9.1-sources.jar!/org/apache/flink/api/table/typeinfo/RowSerializer.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="27" column="6" selection-start-line="27" selection-start-column="6" selection-end-line="27" selection-end-column="6" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-java/0.9.1/flink-java-0.9.1-sources.jar!/org/apache/flink/api/java/typeutils/PojoTypeInfo.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="2.1084337">
+          <caret line="120" column="0" selection-start-line="120" selection-start-column="0" selection-end-line="120" selection-end-column="0" />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar://$MAVEN_REPOSITORY$/org/apache/flink/flink-table/0.9.1/flink-table-0.9.1-sources.jar!/org/apache/flink/api/table/Table.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="17" column="9" selection-start-line="17" selection-start-column="9" selection-end-line="17" selection-end-column="34" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="jar:///usr/lib/jvm/java-7-oracle/src.zip!/java/lang/Object.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="80" column="64" selection-start-line="80" selection-start-column="64" selection-end-line="80" selection-end-column="64" />
+          <folding>
+            <element signature="e#0#25910#0" expanded="false" />
+            <element signature="e#5860#5861#0" expanded="false" />
+            <element signature="e#5896#5897#0" expanded="false" />
+            <element signature="e#10180#10181#0" expanded="false" />
+            <element signature="e#10263#10264#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/QueryTest.scala">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.76877236">
-          <caret line="43" column="29" selection-start-line="0" selection-start-column="0" selection-end-line="207" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="79" column="28" selection-start-line="79" selection-start-column="28" selection-end-line="79" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/org/myorg/quickstart/WordCount.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="46" column="16" selection-start-line="46" selection-start-column="16" selection-end-line="46" selection-end-column="16" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query04.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="62" column="73" selection-start-line="62" selection-start-column="73" selection-end-line="62" selection-end-column="73" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/src/main/scala/de/tub/cs/bigbench/Query02.scala">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.23890784">
+          <caret line="14" column="17" selection-start-line="14" selection-start-column="17" selection-end-line="14" selection-end-column="17" />
           <folding>
-            <element signature="e#28#107#0" expanded="true" />
+            <element signature="e#28#78#0" expanded="true" />
           </folding>
         </state>
       </provider>

@@ -37,22 +37,24 @@ object WordCount {
     val env = ExecutionEnvironment.getExecutionEnvironment
 
 
-    /*
+
     // get input data
     val text = env.fromElements("2 2 2 2 2")
 
     // SELECT SUM(pages) / Count(*) FROM TABLE
-    val counts = text.flatMap {_.toLowerCase.split("\\W+")}
-      .map(pages => (pages.toDouble, 1.0))
+    val result = text.flatMap {_.toLowerCase.split("\\W+")}
+      .map(pages => Tuple2(pages.toDouble, 1.0))
       .reduce((t1,t2) => Tuple2((t1._1 +t2._1),(t1._2 +t2._2)))
       .map(items => (items._1/items._2))
-    */
+
+
+    /*
 
     val itemList: DataSet[List[Int]] = env.fromElements(List(1,2,3),List(4,5,6),List(7,8))
 
     val result = itemList.flatMap(items => for (a <- items; b <- items; if a < b) yield Seq(a, b))
 
-    // execute and print result
+    // execute and print result*/
     result.print()
 
   }
