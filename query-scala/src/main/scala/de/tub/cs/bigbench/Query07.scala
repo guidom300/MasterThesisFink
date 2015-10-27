@@ -2,10 +2,18 @@ package de.tub.cs.bigbench
 
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
+import org.apache.flink.api.table.expressions.Avg
 import org.apache.flink.util.Collector
+import org.apache.flink.api.scala._
 
 /**
  * Created by jjoon on 10/25/15.
+ * SET q07_HIGHER_PRICE_RATIO=1.2;
+--store_sales date
+SET q07_YEAR=2004;
+SET q07_MONTH=7;
+SET q07_HAVING_COUNT_GE=10;
+SET q07_LIMIT=10;
  */
 
 
@@ -19,9 +27,14 @@ object Query07{
     // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
+    val item_j = getItemDataSet(env)
+      .groupBy("_category")
+      .map(Avg)
+
 
     // e.g  _date|_click|_sales|_item|_web_page|_user
     //val webClickStream = getWebClickDataSet(env)
+    /*
     val webPage = getWebPageDataSet(env).as('wp_web_page_sk, 'wp_type)
 
 
@@ -90,7 +103,7 @@ object Query07{
     }
   }
 
-  private def getDateDimDataSet(env: ExecutionEnvironment): DataSet[Item] = {
+  private def getItemDataSet(env: ExecutionEnvironment): DataSet[Item] = {
     env.readCsvFile[Item](
       itemPath,
       fieldDelimiter = "|",

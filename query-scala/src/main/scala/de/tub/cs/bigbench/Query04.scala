@@ -1,13 +1,16 @@
 package de.tub.cs.bigbench
 
-import org.apache.flink.api.common.functions.RichGroupReduceFunction
-import org.apache.flink.api.common.functions.RichGroupReduceFunction.Combinable
+
+import org.apache.flink.api.common.functions.{FlatMapFunction, RichGroupReduceFunction}
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.api.scala._
 import org.apache.flink.api.scala.table._
-import org.apache.flink.api.table.Row
 import org.apache.flink.util.Collector
+
+
+
+import scala.sys
 
 /*
  * Query 04 without Table API
@@ -43,10 +46,14 @@ object Query04{
 
     // e.g  _date|_click|_sales|_item|_web_page|_user
     //val webClickStream = getWebClickDataSet(env)
-    val webPage = getWebPageDataSet(env).as('wp_web_page_sk, 'wp_type)
+    //val webPage = getWebPageDataSet(env).as('wp_web_page_sk, 'wp_type)
+
+    val clickAndWebPageType = getWebClickDataSet(env)
+
+    clickAndWebPageType.first(1).print()
 
 
-
+  /*
     val clickAndWebPageType = getWebClickDataSet(env).join(webPage).where(4).equalTo(0)   // 'wcs_web_page_sk === 'wp_web_page_sk &&
       .as('wcs_click_date_sk, 'wcs_click_time_sk, 'wcs_sales_time_sk, 'wcs_item_sk, 'wcs_web_page_sk,'wcs_user_sk)
       .where( 'wcs_web_page_sk.isNotNull && 'wcs_user_sk.isNotNull && 'wcs_sales_time_sk.isNull)
@@ -65,10 +72,13 @@ object Query04{
       //.sortPartition(1,Order.ASCENDING)
       //.sortPartition(0,Order.ASCENDING)
       .reduceGroup((in, out : Collector[(Int)]) => reduceShopCartPython(in, out))   // return _session_row_counterer
+
+  */
+      /*
       .map(pageCount => Tuple2(pageCount.toDouble,1.0))				// SELECT SUM(Pages) / Coun(*)
       .reduce((t1,t2) => (t1._1 + t2._1), (t1._2,t2._2))
       .map(item => (item._1 / item._2))
-
+*/
 /*
     realQuery.print()*/
 
@@ -79,7 +89,7 @@ object Query04{
 
   def reduceSessionPython(in: Iterator[ClickWebPageType], out : Collector[(String, Long, String)]) = {
     var userId: Int = 0
-    var userType: String = 0
+    var userType: String = ""
     var last_click_time: Long = 0
     var tmp_time: Long = 0
 
@@ -104,7 +114,7 @@ object Query04{
   // Iterator( _type, tst_amp, _sessionId)
   def reduceShopCartPython(in: Iterator[(String, Long, String)], out : Collector[(Int)]) = {
 
-    var userType: String = 0
+    var userType: String = null
     var sessionId: String = null
 
     var session_row_counter = 0
@@ -170,13 +180,39 @@ object Query04{
 
   // e.g. 36890|26789|0|3725|20|85457
   // e.g  _date|_click|_sales|_item|_web_page|_user
-  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick] = {
+  private def getWebClickDataSet(env: ExecutionEnvironment)= {
+
+    //env.readTextFile(webClickPath).flatMap{ _.split("\\|")}//.flatMap(new TokenizeInput)
+
+
+
+
+
     env.readCsvFile[WebClick](
+
+
       webClickPath,
       fieldDelimiter = "|",
-      includedFields = Array(0, 1, 2, 3, 4, 5),
-      lenient = true
+      includedFields = Array(0, 1, 2, 3, 4, 5)
+      //lenient = true
     )
+  }
+
+  class TokenizeInput extends FlatMapFunction[String, List[String]] {
+      override def flatMap(value: String, out: Collector[List[String]]): Unit = { // (in: Iterable[TmpSession], out: Collector[CollectedList]) = {
+
+      val tokens = value.split("|")
+      var token: String = ""
+
+      // emit the pairs
+      //for (token <- tokens) {
+        //if (token.length() > 0) {
+
+          out.collect(tokens.toList)
+
+        //}
+      //}
+    }
   }
 
   // e.g. 33|AAAAAAAAAAAAAABH|2000-11-01||1930|31567|0|534|http://www.UZKjf3qcGotmY.com|general|2404|10|5|0

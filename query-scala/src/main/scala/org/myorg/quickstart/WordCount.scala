@@ -20,6 +20,8 @@ package org.myorg.quickstart
 
 import org.apache.flink.api.scala._
 
+import scala.collection.mutable.ArrayBuffer
+
 /**
  * Implements the "WordCount" program that computes a simple word occurrence histogram
  * over some sample data
@@ -39,13 +41,14 @@ object WordCount {
 
 
     // get input data
-    val text = env.fromElements("2 2 2 2 2")
+    //val text = env.fromElements("To|be, or not to be,--that is the question:--",
+    //"Whether 'tis nobler in the mind to suffer", "The slings and arrows of outrageous fortune",
+    //"Or to take arms against a sea of troubles,")
+    val text = env.fromElements("33742|3128||524|29|98657")
 
     // SELECT SUM(pages) / Count(*) FROM TABLE
-    val result = text.flatMap {_.toLowerCase.split("\\W+")}
-      .map(pages => Tuple2(pages.toDouble, 1.0))
-      .reduce((t1,t2) => Tuple2((t1._1 +t2._1),(t1._2 +t2._2)))
-      .map(items => (items._1/items._2))
+    //val outputList: ArrayBuffer[String] = null
+    val result = text.flatMap {item =>  item.toLowerCase.split("\\|")}
 
 
     /*
