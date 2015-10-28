@@ -24,7 +24,7 @@ object Query12{
 
     // set filter date
     val dateFormat = new SimpleDateFormat("yyy-MM-dd")
-    val startDate = dateFormat.parse("2001-09-02")
+    val startDate111 = dateFormat.parse("2001-09-02")
     val endDate1 = dateFormat.parse("2001-10-02")
     val endDate2 = dateFormat.parse("2001-12-02")
 
