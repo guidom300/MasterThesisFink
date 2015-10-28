@@ -24,7 +24,7 @@ object Query14{
     if (!parseParameters(args)) {
       return
     }
-
+    // TEST 001
     // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 

@@ -57,7 +57,7 @@ object Query12{
 
     AND ss_customer_sk IS NOT NULL
     */
-
+goog
     val webInRange =
     /*
     **AND wcs_item_sk = i_item_sk
