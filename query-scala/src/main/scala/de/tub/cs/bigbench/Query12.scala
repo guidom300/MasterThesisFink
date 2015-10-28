@@ -1,5 +1,7 @@
 package de.tub.cs.bigbench
 
+import java.text.SimpleDateFormat
+
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
 import org.apache.flink.api.table.expressions.Avg
 
@@ -19,6 +21,20 @@ object Query12{
     if (!parseParameters(args)) {
       return
     }
+
+    // set filter date
+    val dateFormat = new SimpleDateFormat("yyy-MM-dd")
+    val startDate = dateFormat.parse("2001-09-02")
+    val endDate1 = dateFormat.parse("2001-10-02")
+    val endDate2 = dateFormat.parse("2001-12-02")
+
+    /*
+    USAGE
+    .filter( l => dateFormat.prase(l.shipDate).after(startDate)
+    .filter( l => dateFormat.prase(l.shipDate).before(startDate)
+
+     */
+
 
     // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
