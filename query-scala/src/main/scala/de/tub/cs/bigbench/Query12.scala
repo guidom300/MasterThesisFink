@@ -57,7 +57,7 @@ object Query12{
 
     AND ss_customer_sk IS NOT NULL
     */
-goog
+
     val webInRange =
     /*
     **AND wcs_item_sk = i_item_sk
@@ -91,9 +91,9 @@ goog
 
   // _item_sk(0), _current_price(5), _category(12)
   case class Item(_item_sk: Long, _current_price: Double, _category: String)
-  case class User()
-  case class WebClick(click_date: Long, click_time: Long, user: Int, item: Int)
 
+  // _click_date_sk(0), _user_sk(5), _item_sk(3), _sales_sk(2)
+  case class WebClick(click_date: Long, click_time: Long, user: Int, item: Int)
 
   //_customer_sk(3), _item_sk(2),_sold_date_sk(0)
   case class Store_sales(_sold_date_sk: Long, _item_sk: Long, _customer_sk: Long)
@@ -131,12 +131,12 @@ goog
     )
   }
 
-
+  // null value on _sales_sk
   private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick] = {
     env.readCsvFile[WebClick](
       webClickPath,
       fieldDelimiter = "|",
-      includedFields = Array(0, 1, 3, 5),
+      includedFields = Array(0, 2, 3, 5),
       lenient = true)
   }
 

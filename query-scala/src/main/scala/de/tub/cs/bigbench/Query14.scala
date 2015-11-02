@@ -62,6 +62,7 @@ object Query14{
 
 
 
+
     val webSalesJoin1 =
 
     val webSalesJoin2 =
@@ -80,10 +81,14 @@ object Query14{
   //     USER DATA TYPES
   // *************************************************************************
 
-  case class WebSales()
-  case class HouseHold()
-  case class TimeDim()
-  case class WebPage()
+  //BIGINT: _ship_hdemo_sk(10), _web_page_sk(12), _sold_time_sk(1)
+  case class WebSales(_sold_time_sk: Long, _ship_hdemo_sk: Long,_web_page_sk: Long)
+  //_demo_sk(0): BIGINT, _dep_count(3): int
+  case class HouseHold(_demo_sk: Long, _dep_count: Int)
+  //_time_sk(0): BIGINT, _t_hour(3): int
+  case class TimeDim(_time_sk: Long, _t_hour: Int)
+  //_web_page_sk(0): BIGINT, _char_count(10): int
+  case class WebPage(_web_page_sk: Long, _char_count: Int)
 
 
   // *************************************************************************
@@ -116,7 +121,7 @@ object Query14{
     env.readCsvFile[WebSales](
       webSalePath,
       fieldDelimiter = "|",
-      includedFields = Array(0, 5, 12),
+      includedFields = Array(1, 10, 12),
       lenient = true
     )
   }
@@ -126,7 +131,7 @@ object Query14{
     env.readCsvFile[HouseHold](
       houseHoldPath,
       fieldDelimiter = "|",
-      includedFields = Array(0, 1, 3, 5),
+      includedFields = Array(0, 3),
       lenient = true)
   }
 
@@ -134,7 +139,7 @@ object Query14{
     env.readCsvFile[TimeDim](
       timeDimPath,
       fieldDelimiter = "|",
-      includedFields = Array(0, 6, 8),
+      includedFields = Array(0, 3),
       lenient = true
     )
   }
@@ -144,7 +149,7 @@ object Query14{
     env.readCsvFile[WebPage](
       webPagePath,
       fieldDelimiter = "|",
-      includedFields = Array(0, 2, 3),
+      includedFields = Array(0, 10),
       lenient = true
     )
   }

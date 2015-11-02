@@ -64,7 +64,7 @@ object Query07{
   // *************************************************************************
   //     USER DATA TYPES
   // *************************************************************************
-
+  // Double: Decimal(7,2), Long: BIGINT, Int: int
   // _item_sk(0), _current_price(5), _category(12)
   case class Item(_item_sk: Long, _current_price: Double, _category: String)
   // _date_sk(0), _year(6), _moy(8)
