@@ -52,6 +52,8 @@ object Query14{
 
     val result = webSalesMorning / webSalesEvening
 
+    println(result)
+
     //result
     env.execute("Scala Query 14 Example")
   }
