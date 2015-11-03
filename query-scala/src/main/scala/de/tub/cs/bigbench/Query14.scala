@@ -1,80 +1,60 @@
 package de.tub.cs.bigbench
 
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
-import org.apache.flink.api.table.expressions.Avg
+import org.apache.flink.api.table.expressions._
+import org.apache.flink.api.scala.table._
 
-/*
-* web_sales, household_demographics, time_dim, web_page
-*
-set q14_dependents=5;
-set q14_morning_startHour=7;
-set q14_morning_endHour=8;
+/* Table API
+val webSales = getWebSalesDataSet(env).as('_sold_time_sk, '_ship_hdemo_sk, '_web_page_sk).toDataSet[WebSales]
+val houseHold = getHouseHoldDataSet(env).as('_demo_sk, '_dep_count)
+val timeDim = getTimeDimDataSet(env).as('_time_sk, '_t_hour)
+val webPage = getWebPageDataSet(env).as('_web_page_sk, '_char_count)
 
-set q14_evening_startHour=19;
-set q14_evening_endHour=20;
-
-set q14_content_len_min=5000;
-set q14_content_len_max=6000;
-*
- */
-
+val morningTimeDim = timeDim.where('_t_hour >= morning_startHour && '_t_housr <= morning_endHour).toDataSet[TimeDim]
+val eveningTimeDim = timeDim.where('_t_hour >= evening_startHour && '_t_housr <= evening_endHour).toDataSet[TimeDim]
+val dependtsHouseHold  =houseHold.where('_dep_count === dependents).toDataSet[HouseHold]
+*/
 object Query14{
+
+  // arg_configuration
+  val dependents = 5
+  val morning_startHour = 7
+  val morning_endHour = 8
+  val evening_startHour = 19
+  val evening_endHour = 20
+  val content_len_min = 5000
+  val content_len_max = 6000
 
   def main(args: Array[String]) {
     if (!parseParameters(args)) {
       return
     }
-    // TEST 001
+
     // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
-    /*
-    *SELECT COUNT(*) amc
-    FROM web_sales ws
-    JOIN household_demographics hd ON hd.hd_demo_sk = ws.ws_ship_hdemo_sk
-    1)
-    JOIN time_dim td ON td.t_time_sk = ws.ws_sold_time_sk
-    2)
-    JOIN web_page wp ON wp.wp_web_page_sk = ws.ws_web_page_sk
-    3)
-     */
+    val webSales = getWebSalesDataSet(env)
 
-    val webSales = getWebSalesDataSet()
-    val houseHold = getHouseHoldDataSet()
-    val timeDim = getTimeDimDataSet()
-    val webPage = getWebPageDataSet()
+    val contentsWebPage = getWebPageDataSet(env).filter(items => (items._char_count >= content_len_min && items._char_count <= content_len_max))
+    val morningTimeDim = getTimeDimDataSet(env).filter(items => (items._t_hour >= morning_startHour && items._t_hour <= morning_endHour))
+    val eveningTimeDim = getTimeDimDataSet(env).filter(items => (items._t_hour >= evening_startHour && items._t_hour <= evening_endHour))
+    val dependtsHouseHold  =getHouseHoldDataSet(env).filter(items => items._dep_count == dependents)
 
-    /* 3)
-    AND wp.wp_char_count >= ${hiveconf:q14_content_len_min}
-    AND wp.wp_char_count <= ${hiveconf:q14_content_len_max}
-     */
-    val contentsWebPage = webPage.fitler()
-    /* 2)
-    AND td.t_hour >= ${hiveconf:q14_morning_startHour}
-    AND td.t_hour <= ${hiveconf:q14_morning_endHour}
-    */
-    val morningTimeDim = timeDim.filter()
-    val eveningTimeDim = timeDim.filter()
-    /* 1)
-    AND hd.hd_dep_count = ${hiveconf:q14_dependents}
-     */
-    val dependtsHouseHold  =houseHold.filter()
+    val webSalesMorning = webSales.join(dependtsHouseHold).where(_._ship_hdemo_sk).equalTo(_._demo_sk).apply((ws,hh) => ws)
+      .join(morningTimeDim).where(_._sold_time_sk).equalTo(_._time_sk).apply((ws,mt) => ws)
+      .join(contentsWebPage).where(_._web_page_sk).equalTo(_._web_page_sk).apply((ws,wp) => ws)
+      .count().toDouble
 
+    val webSalesEvening = webSales.join(dependtsHouseHold).where(_._ship_hdemo_sk).equalTo(_._demo_sk).apply((ws,hh) => ws)
+      .join(eveningTimeDim).where(_._sold_time_sk).equalTo(_._time_sk).apply((ws,mt) => ws)
+      .join(contentsWebPage).where(_._web_page_sk).equalTo(_._web_page_sk).apply((ws,wp) => ws)
+      .count().toDouble
 
+    val result = webSalesMorning / webSalesEvening
 
-
-    val webSalesJoin1 =
-
-    val webSalesJoin2 =
-
-
-
-
+    //result
+    env.execute("Scala Query 14 Example")
   }
-
-
-
-
 
 
   // *************************************************************************
@@ -116,7 +96,6 @@ object Query14{
   }
 
   // TABLE:  web_sales, household_demographics, time_dim, web_page
-
   private def getWebSalesDataSet(env: ExecutionEnvironment): DataSet[WebSales] = {
     env.readCsvFile[WebSales](
       webSalePath,
@@ -125,8 +104,6 @@ object Query14{
       lenient = true
     )
   }
-
-
   private def getHouseHoldDataSet(env: ExecutionEnvironment): DataSet[HouseHold] = {
     env.readCsvFile[HouseHold](
       houseHoldPath,
@@ -144,7 +121,6 @@ object Query14{
     )
   }
 
-
   private def getWebPageDataSet(env: ExecutionEnvironment): DataSet[WebPage] = {
     env.readCsvFile[WebPage](
       webPagePath,
@@ -159,3 +135,34 @@ object Query14{
 class Query14 {
 
 }
+
+/*
+*
+TABLE: web_sales, household_demographics, time_dim, web_page
+
+set q14_dependents=5;
+set q14_morning_startHour=7;
+set q14_morning_endHour=8;
+set q14_evening_startHour=19;
+set q14_evening_endHour=20;
+set q14_content_len_min=5000;
+set q14_content_len_max=6000;
+*/
+/*
+Query 14
+AND wp.wp_char_count >= ${hiveconf:q14_content_len_min}
+AND wp.wp_char_count <= ${hiveconf:q14_content_len_max}
+AND td.t_hour >= ${hiveconf:q14_morning_startHour}
+AND td.t_hour <= ${hiveconf:q14_morning_endHour}
+AND hd.hd_dep_count = ${hiveconf:q14_dependents}
+
+SELECT CAST(amc as double) / CAST(pmc as double) am_pm_ratio
+FROM ( webSalesMorning ) at
+Join ( webSalesEvening ) pt
+
+SELECT COUNT(*) amc
+FROM web_sales ws
+JOIN household_demographics hd ON hd.hd_demo_sk = ws.ws_ship_hdemo_sk
+JOIN time_dim td ON td.t_time_sk = ws.ws_sold_time_sk
+JOIN web_page wp ON wp.wp_web_page_sk = ws.ws_web_page_sk
+*/
