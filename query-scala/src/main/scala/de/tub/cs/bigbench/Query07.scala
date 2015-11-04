@@ -2,63 +2,84 @@ package de.tub.cs.bigbench
 
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
-import org.apache.flink.api.table.expressions.Avg
 import org.apache.flink.util.Collector
 import org.apache.flink.api.scala._
 
-/**
- * Created by jjoon on 10/25/15.
- * SET q07_HIGHER_PRICE_RATIO=1.2;
---store_sales date
-SET q07_YEAR=2004;
-SET q07_MONTH=7;
-SET q07_HAVING_COUNT_GE=10;
-SET q07_LIMIT=10;
+/* Conditions
+WHERE a.ca_address_sk = c.c_current_addr_sk 1)
+AND c.c_customer_sk = s.ss_customer_sk      2)
+AND ca_state IS NOT NULL
+AND ss_item_sk = highPriceItems.i_item_sk   3)
+AND s.ss_sold_date_sk IN                    4)
  */
 
-
 object Query07{
+
+  // arg_configuration
+  val YEAR = 2004
+  val MONTH = 7
+  val HIGHER_PRICE_RATIO=1.2;
+  val HAVING_COUNT_GE=10;
+  val LIMIT=10;
+
 
   def main(args: Array[String]) {
     if (!parseParameters(args)) {
       return
     }
 
-    // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
-    val item_j = getItemDataSet(env)
-      .groupBy("_category")
-      .map(Avg)
+    val avgCategoryPrice = getItemJDataSet(env)
+      .groupBy(_._category)
+      .reduceGroup((in, out : Collector[(String,Double)]) => reduceAvg(in, out))
+
+    val highPriceItems = getItemKDataSet(env)
+      .join(avgCategoryPrice).where(_._category).equalTo(_._1).apply((k,j) =>(k._item_sk,k._current_price,j._2 * HIGHER_PRICE_RATIO))
+      .filter(items => items._2 >= items._3)      // k.i_current_price > avgCategoryPrice.avg_price
+
+    val filterDateDim = getDateDimDataSet(env)
+      .filter(items => items._year.equals(YEAR) && items._moy.equals(MONTH))
+      .map(items => items._date_sk).collect()
+
+    val customerAddress = getCustomerAddressDataSet(env)
+      .filter(items => !items._state.isEmpty)
+
+    val joinedCustomer = getCustomerDataSet(env)    // 1)
+      .join(customerAddress).where(_._current_addr_sk).equalTo(_._address_sk).apply((ct,ca) => (ct._customer_sk,ca._state))
+
+    val filterStoreSales = getStoreSalesDataSet(env)
+      .filter(items => filterDateDim.contains(items._sold_date_sk))
+      .join(highPriceItems).where(_._item_sk).equalTo(_._1).apply((ss,hp)=> (ss._customer_sk,ss._sold_date_sk)) // 3)
+      .join(joinedCustomer).where(_._1).equalTo(_._1).apply((ss,ct) => (ct._2))         // c.c_customer_sk = s.ss_customer_sk 2)
+
+    val realQuery = filterStoreSales
+        .map(items => (items,1))
+        .groupBy(0)
+        .sum(1)
+        .filter(items => items._2 >= HAVING_COUNT_GE)
+        .sortPartition(1,Order.DESCENDING).setParallelism(1)
+        .first(LIMIT)
+
+    // realQuery.print()
+    realQuery.writeAsCsv(outputPath,)
 
 
-    // e.g  _date|_click|_sales|_item|_web_page|_user
-    //val webClickStream = getWebClickDataSet(env)
-    /*
-    val webPage = getWebPageDataSet(env).as('wp_web_page_sk, 'wp_type)
-
-
-
-    val clickAndWebPageType = getWebClickDataSet(env).join(webPage).where(4).equalTo(0)   // 'wcs_web_page_sk === 'wp_web_page_sk &&
-      .as('wcs_click_date_sk, 'wcs_click_time_sk, 'wcs_sales_time_sk, 'wcs_item_sk, 'wcs_web_page_sk,'wcs_user_sk)
-      .where( 'wcs_web_page_sk.isNotNull && 'wcs_user_sk.isNotNull && 'wcs_sales_time_sk.isNull)
-      .select('wcs_user_sk as '_user, 'wp_type as '_type, ('wcs_click_date_sk * 24 * 60 * 60 + 'wcs_click_time_sk) as '_sum_date)
-      .toDataSet[ClickWebPageType]
-      .partitionByHash("_user")                  // DISTRIBUTE BY wcs_user_sk SORT BY wcs_user_sk, tstamp_inSec
-      .sortPartition("_user",Order.ASCENDING)
-      // groupBy() for ordering of sorting
-      .sortPartition("_sum_date", Order.ASCENDING)
-      .reduceGroup((in, out : Collector[(String, Long, String)]) => reduceSessionPython(in, out))   // return _type, tst_amp, _sessionId
-
-
-        realQuery.print()*/
-
-    //env.execute("Big Bench Query2 Test")
+    env.execute("Big Bench Query7 Test")
   }
 
+  def reduceAvg(in: Iterator[ItemJ], out : Collector[(String,Double)]) = {
+    var cnt = 0
+    var sum: Double = 0
+    var category: String = ""
 
-
-
+    in.foreach { userInfo =>
+      category = userInfo._category
+      sum += userInfo._current_price
+      cnt += 1
+    }
+    out.collect(category,(sum/cnt))
+  }
 
 
   // *************************************************************************
@@ -66,26 +87,27 @@ object Query07{
   // *************************************************************************
   // Double: Decimal(7,2), Long: BIGINT, Int: int
   // _item_sk(0), _current_price(5), _category(12)
-  case class Item(_item_sk: Long, _current_price: Double, _category: String)
+  case class ItemK(_item_sk: Long, _current_price: Double, _category: String)
+  case class ItemJ(_current_price: Double, _category: String)
   // _date_sk(0), _year(6), _moy(8)
-  case class Date_dim(_date_sk: Long, _year: Int, _moy: Int)
+  case class DateDim(_date_sk: Long, _year: Int, _moy: Int)
   // _address_sk(0),_state(8)
-  case class Customer_address(_address_sk: Long, _state: String)
+  case class CustomerAddress(_address_sk: Long, _state: String)
   // _customer_sk(0),_current_addr_sk(4),
   case class Customer(_customer_sk: Long, _current_addr_sk: Long)
   //_customer_sk(3), _item_sk(2),_sold_date_sk(0)
-  case class Store_sales(_sold_date_sk: Long, _item_sk: Long, _customer_sk: Long)
+  case class StoreSales(_sold_date_sk: Long, _item_sk: Long, _customer_sk: Long)
 
 
   // *************************************************************************
   //     UTIL METHODS
   // *************************************************************************
 
-  private var itemPath: String = null
-  private var dateDimPath: String = null
-  private var customerAddrPath: String = null
-  private var customerPath: String = null
-  private var storeSalesPath: String = null
+  private var itemPath: String  = "/home/jjoon/bigBench/data-generator/output/item.dat"
+  private var dateDimPath: String = "/home/jjoon/bigBench/data-generator/output/date_dim.dat"
+  private var customerAddrPath: String = "/home/jjoon/bigBench/data-generator/output/customer_address.dat"
+  private var customerPath: String = "/home/jjoon/bigBench/data-generator/output/customer.dat"
+  private var storeSalesPath: String = "/home/jjoon/bigBench/data-generator/output/store_sales.dat"
   private var outputPath: String = null
 
   private def parseParameters(args: Array[String]): Boolean = {
@@ -103,17 +125,27 @@ object Query07{
     }
   }
 
-  private def getItemDataSet(env: ExecutionEnvironment): DataSet[Item] = {
-    env.readCsvFile[Item](
+  private def getItemKDataSet(env: ExecutionEnvironment): DataSet[ItemK] = {
+    env.readCsvFile[ItemK](
       itemPath,
       fieldDelimiter = "|",
+      //includedFields = Array(0, 5),
       includedFields = Array(0, 5, 12),
       lenient = true
     )
   }
 
-  private def getDateDimDataSet(env: ExecutionEnvironment): DataSet[Date_dim] = {
-    env.readCsvFile[Date_dim](
+  private def getItemJDataSet(env: ExecutionEnvironment): DataSet[ItemJ] = {
+    env.readCsvFile[ItemJ](
+      itemPath,
+      fieldDelimiter = "|",
+      includedFields = Array(5, 12),
+      lenient = true
+    )
+  }
+
+  private def getDateDimDataSet(env: ExecutionEnvironment): DataSet[DateDim] = {
+    env.readCsvFile[DateDim](
       dateDimPath,
       fieldDelimiter = "|",
       includedFields = Array(0, 6, 8),
@@ -121,8 +153,8 @@ object Query07{
     )
   }
 
-  private def getCustomerAddressDataSet(env: ExecutionEnvironment): DataSet[Customer_address] = {
-    env.readCsvFile[Customer_address](
+  private def getCustomerAddressDataSet(env: ExecutionEnvironment): DataSet[CustomerAddress] = {
+    env.readCsvFile[CustomerAddress](
       customerAddrPath,
       fieldDelimiter = "|",
       includedFields = Array(0, 8),
@@ -139,8 +171,8 @@ object Query07{
     )
   }
 
-  private def getStoreSalesDataSet(env: ExecutionEnvironment): DataSet[Store_sales] = {
-    env.readCsvFile[Store_sales](
+  private def getStoreSalesDataSet(env: ExecutionEnvironment): DataSet[StoreSales] = {
+    env.readCsvFile[StoreSales](
       storeSalesPath,
       fieldDelimiter = "|",
       includedFields = Array(0, 2, 3),
@@ -153,3 +185,22 @@ object Query07{
 class Query07 {
 
 }
+
+
+/*
+.flatMap{ in =>
+ (in, out: Collector[Tuple2[Long,Long]]) =>
+   for(date <- filterDateDim) {
+     if(in._sold_date_sk.equals(date)
+       (Tuple2(in._customer_sk,in._item_sk))
+   }
+}
+
+.filter( items => filterDateDim.contains(items._sold_date_sk)).print()
+
+.flatMap{ items =>
+  for(date <- filterDateDim; if(items._sold_date_sk.equals(date)) )
+             // filtering
+      yield Tuple3(items._customer_sk,items._item_sk,items._sold_date_sk)
+}.print()
+*/
