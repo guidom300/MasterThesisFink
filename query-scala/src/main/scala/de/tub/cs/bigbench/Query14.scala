@@ -1,19 +1,16 @@
 package de.tub.cs.bigbench
 
+import org.apache.flink.api.scala._
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
-import org.apache.flink.api.table.expressions._
-import org.apache.flink.api.scala.table._
 
-/* Table API
-val webSales = getWebSalesDataSet(env).as('_sold_time_sk, '_ship_hdemo_sk, '_web_page_sk).toDataSet[WebSales]
-val houseHold = getHouseHoldDataSet(env).as('_demo_sk, '_dep_count)
-val timeDim = getTimeDimDataSet(env).as('_time_sk, '_t_hour)
-val webPage = getWebPageDataSet(env).as('_web_page_sk, '_char_count)
 
-val morningTimeDim = timeDim.where('_t_hour >= morning_startHour && '_t_housr <= morning_endHour).toDataSet[TimeDim]
-val eveningTimeDim = timeDim.where('_t_hour >= evening_startHour && '_t_housr <= evening_endHour).toDataSet[TimeDim]
-val dependtsHouseHold  =houseHold.where('_dep_count === dependents).toDataSet[HouseHold]
-*/
+/*
+Developed By Philip Lee
+
+Configuration
+"/home/jjoon/bigBench/data-generator/output/web_sales.dat" "/home/jjoon/bigBench/data-generator/output/household_demographics.dat" "/home/jjoon/bigBench/data-generator/output/time_dim.dat" "/home/jjoon/bigBench/data-generator/output/web_page.dat" "/home/jjoon/bigBench/"
+ */
+
 object Query14{
 
   // arg_configuration
@@ -30,7 +27,6 @@ object Query14{
       return
     }
 
-    // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
     val webSales = getWebSalesDataSet(env)
@@ -52,10 +48,9 @@ object Query14{
 
     val result = webSalesMorning / webSalesEvening
 
-    println(result)
+    println((result* 10000).round / 10000.toDouble)
 
-    //result
-    env.execute("Scala Query 14 Example")
+    env.execute("Big Bench Query14 Test")
   }
 
 
@@ -137,19 +132,17 @@ object Query14{
 class Query14 {
 
 }
+/* Table API
+val webSales = getWebSalesDataSet(env).as('_sold_time_sk, '_ship_hdemo_sk, '_web_page_sk).toDataSet[WebSales]
+val houseHold = getHouseHoldDataSet(env).as('_demo_sk, '_dep_count)
+val timeDim = getTimeDimDataSet(env).as('_time_sk, '_t_hour)
+val webPage = getWebPageDataSet(env).as('_web_page_sk, '_char_count)
 
-/*
-*
-TABLE: web_sales, household_demographics, time_dim, web_page
-
-set q14_dependents=5;
-set q14_morning_startHour=7;
-set q14_morning_endHour=8;
-set q14_evening_startHour=19;
-set q14_evening_endHour=20;
-set q14_content_len_min=5000;
-set q14_content_len_max=6000;
+val morningTimeDim = timeDim.where('_t_hour >= morning_startHour && '_t_housr <= morning_endHour).toDataSet[TimeDim]
+val eveningTimeDim = timeDim.where('_t_hour >= evening_startHour && '_t_housr <= evening_endHour).toDataSet[TimeDim]
+val dependtsHouseHold  =houseHold.where('_dep_count === dependents).toDataSet[HouseHold]
 */
+
 /*
 Query 14
 AND wp.wp_char_count >= ${hiveconf:q14_content_len_min}

@@ -1,71 +1,63 @@
 package de.tub.cs.bigbench
 
+package de.tub.cs.bigbench
+
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.api.scala._
-import org.apache.flink.api.scala.table._
+import org.apache.flink.core.fs.FileSystem.WriteMode
 import org.apache.flink.util.Collector
 
 /*
- * Edit Conf: /home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  10001 /home/jjoon/bigBench/results 30
- * Questions;
- * Distribute By == partitionByHash  could be same?
- * toDataSet == toTable for Performance to change
- * groupBy() for ordering of sorting, so it could be different because SQL ORDERBY, which takes columns in a order is different *
- * Ignore Dataset
- * SenssionId on Query02 of Hive Version
- *
- */
-//
-
+ * Edit Conf: /home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  /home/jjoon/bigBench/results
+*/
 
 object Query02{
+
+  // arg_configuration
+  val LIMIT = 30
+  val ITEM = 10001
 
   def main(args: Array[String]) {
     if (!parseParameters(args)) {
       return
     }
 
-    // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
-    // Sessionize by streaming
-    val clickAndWebPageType = getWebClickDataSet(env).as('wcs_click_date_sk, 'wcs_click_time_sk, 'wcs_item_sk, 'wcs_user_sk)
-      .where('wcs_item_sk.isNotNull && 'wcs_user_sk.isNotNull)
-      .select('wcs_user_sk as 'user, 'wcs_item_sk as 'item, ('wcs_click_date_sk * 24 * 60 * 60 + 'wcs_click_time_sk) as 'sum_date)
-      .toDataSet[ClickWebPageType]
-      .partitionByHash("user")                                                          // DISTRIBUTE BY wcs_user_sk SORT BY wcs_user_sk, tstamp_inSec     // .groupBy('wcs_user_sk)
-      .sortPartition("user",Order.ASCENDING)
-      // groupBy() for ordering of sorting
-      .sortPartition("sum_date", Order.ASCENDING)
+    val clickAndWebPageType = getWebClickDataSet(env)
+      .filter(items => (!items._item_sk.equals(null) && !items._user_sk.equals(null)))
+      .map(items => new ClickWebPageType(items._user_sk,items._item_sk,items._click_date * 24 * 60 * 60 + items._click_time))
+      .groupBy(0)
+      .sortGroup(0,Order.ASCENDING)
+      .sortGroup(2, Order.ASCENDING)
 
     val tmpSession = clickAndWebPageType
-      .reduceGroup((in, out : Collector[(Int, String)]) => reducePython(in, out))       // reduce three columns; wcs_user_sk, tstamp_inSec, wcs_item_sk using Python Code //.as('wcs_item_sk, 'sessionId)
-      .partitionByHash(1).sortPartition(1,Order.ASCENDING)                              // CLUSTER BY sessionId
+      .reduceGroup((in, out : Collector[(Int, String)]) => reducePython(in, out))
+      .sortPartition(1,Order.DESCENDING)
 
     val pairs = tmpSession
-      .groupBy(1)                                                                       // GROUP BY sessionId
-      .reduceGroup(in => in.map(v => v._1).toSet.toArray.sorted)                          // collect_set(wcs_item_sk) as itemArray    //.reduceGroup(new MyCollectSetReducer).as(`itemArray)
-      .filter(items => items.contains(searchItem))                                      // HAVING array_contains(itemArray, cast(q02 AS BIGINT))
-      .flatMap(items => for (a <- items; b <- items; if a < b) yield Seq(a, b))         // makePairs(sort_array(itemArray), false) as item_1, item_2
+      .groupBy(1)
+      .reduceGroup(in => in.map(v => v._1).toSet.toArray.sorted)                          // collect_set(wcs_item_sk) as itemArray
+      .filter(items => items.contains(ITEM))
+      .flatMap(items => for (a <- items; b <- items; if a < b) yield Seq(a, b))           // makePairs(sort_array(itemArray), false) as item_1, item_2
 
     val realQuery = pairs
-      //.filter(items => (items._1 == searchItem) || (items._2 == searchItem))            // Tuple2 if where item_1 = searchItem || item_2 == searchItem
-      .filter(items => items.contains(searchItem))
+      .filter(items => items.contains(ITEM))
       .map{items => (items(0),items(1),1)}
       .groupBy(0,1)
       .sum(2)
       .sortPartition(2,Order.DESCENDING).setParallelism(1)                                // ORDER BY cnt DESC, item_1, item_2
-      // groupBy() for ordering of sorting
-      .sortPartition(1,Order.ASCENDING).setParallelism(1)
-      .sortPartition(0,Order.ASCENDING).setParallelism(1)
+      //.sortPartition(1,Order.ASCENDING).setParallelism(1)                               // FLINK RC 0.10 will fix this issue
+      //.sortPartition(0,Order.ASCENDING).setParallelism(1)
+      .first(LIMIT)
 
-      .first(limitPeoeple).print()
+    //realQuery.print()
+    realQuery.writeAsCsv(outputPath + "/result-02.dat","\n", "|",WriteMode.OVERWRITE)
 
-    //env.execute("Big Bench Query2 Test")
+    env.execute("Big Bench Query2 Test")
   }
 
-  // Python Code as Scala Version; Return item, sessionId
   def reducePython(in: Iterator[ClickWebPageType], out : Collector[(Int, String)]) = {
     var userId: Int = 0
     var userItem: Int = 0
@@ -76,9 +68,9 @@ object Query02{
     var output_sessionId: String = null
 
     in.foreach{ userInfo =>
-      userId = userInfo.user
-      userItem = userInfo.item
-      tmp_time = userInfo.sum_date
+      userId = userInfo._user_sk
+      userItem = userInfo._item_sk
+      tmp_time = userInfo._sum_date
 
       if (tmp_time - last_click_time > 3600){
         perUser_counter += 1
@@ -95,9 +87,9 @@ object Query02{
   //     USER DATA TYPES
   // *************************************************************************
 
-  case class WebClick(click_date: Long, click_time: Long, user: Int, item: Int)
-  case class ClickWebPageType(user: Int, item: Int, sum_date: Long)
-  case class TmpSession(item: Int, sessionId: String)
+  case class WebClick(_click_date: Long, _click_time: Long, _item_sk: Int, _user_sk: Int)
+  case class ClickWebPageType(_user_sk: Int, _item_sk: Int, _sum_date: Long)
+  case class TmpSession(_item_sk: Int, _sessionId: String)
   case class CollectedList(itemArray: Set[Int])
 
   // *************************************************************************
@@ -105,20 +97,15 @@ object Query02{
   // *************************************************************************
 
   private var webClickPath: String = null
-  private var searchItem: Int = 0
   private var outputPath: String = null
-  private var limitPeoeple: Int = 0
-
 
   private def parseParameters(args: Array[String]): Boolean = {
-    if (args.length == 4) {
+    if (args.length == 2) {
       webClickPath = args(0)
-      searchItem = args(1).toInt
-      outputPath = args(2)
-      limitPeoeple = args(3).toInt
+      outputPath = args(1)
       true
     } else {
-      System.err.println("Usage: Big Bench <web_clickstream-csv path> <search_item>  <result path>")
+      System.err.println("Usage: Big Bench <web_clickstream-csv path> <ITEM>  <result path>")
       false
     }
   }
@@ -130,10 +117,8 @@ object Query02{
       includedFields = Array(0, 1, 3, 5),
       lenient = true)
   }
-
-
-
 }
+
 class Query02 {
 
 }

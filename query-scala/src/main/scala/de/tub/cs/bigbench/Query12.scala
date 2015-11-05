@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat
 
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
+import org.apache.flink.api.scala._
 import org.apache.flink.api.table.expressions.Avg
 
 /*

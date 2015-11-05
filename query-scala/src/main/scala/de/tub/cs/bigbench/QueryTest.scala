@@ -204,6 +204,27 @@ object QueryTest{
  */
 
 
+
+  /* Query 07 WHERE _date_sk IN TABLE
+  .flatMap{ in =>
+   (in, out: Collector[Tuple2[Long,Long]]) =>
+     for(date <- filterDateDim) {
+       if(in._sold_date_sk.equals(date)
+         (Tuple2(in._customer_sk,in._item_sk))
+     }
+  }
+
+  .filter( items => filterDateDim.contains(items._sold_date_sk)).print()
+
+  .flatMap{ items =>
+    for(date <- filterDateDim; if(items._sold_date_sk.equals(date)) )
+               // filtering
+        yield Tuple3(items._customer_sk,items._item_sk,items._sold_date_sk)
+  }.print()
+  */
+
+
+
 }
 class QueryTest {
 
