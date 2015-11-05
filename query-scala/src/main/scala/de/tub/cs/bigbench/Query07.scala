@@ -62,9 +62,8 @@ object Query07{
         .sortPartition(1,Order.DESCENDING).setParallelism(1)
         .first(LIMIT)
 
-    // realQuery.print()
+    //realQuery.print()
     realQuery.writeAsCsv(outputPath + "/result-07.dat","\n", "|",WriteMode.OVERWRITE)
-
 
     env.execute("Big Bench Query7 Test")
   }
