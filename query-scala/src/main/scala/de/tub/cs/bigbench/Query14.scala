@@ -1,7 +1,10 @@
 package de.tub.cs.bigbench
 
+import org.apache.flink.api.common.functions.{GroupReduceFunction, RichReduceFunction}
 import org.apache.flink.api.scala._
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
+import org.apache.flink.core.fs.FileSystem.WriteMode
+import org.apache.flink.util.Collector
 
 
 /*
@@ -44,15 +47,27 @@ object Query14{
     val webSalesEvening = webSales.join(dependtsHouseHold).where(_._ship_hdemo_sk).equalTo(_._demo_sk).apply((ws,hh) => ws)
       .join(eveningTimeDim).where(_._sold_time_sk).equalTo(_._time_sk).apply((ws,mt) => ws)
       .join(contentsWebPage).where(_._web_page_sk).equalTo(_._web_page_sk).apply((ws,wp) => ws)
-      .count().toDouble
+      //.reduceGroup(((in, out : Collector[(Double)]) => reduceAvg(in, out)))
+      .reduceGroup(new GroupReduceFunction[WebSales, Double] {
+        override def reduce(values: _root_.java.lang.Iterable[WebSales], out: Collector[Double]): Unit = {
+          var cnt: Double = 0
+          var result: Double = 0
+          val itr = values.iterator()
+          while(itr.hasNext()){
+            itr.next()
+            cnt += 1
+          }
+          result = ((webSalesMorning/cnt)*10000).round/10000.toDouble
+          out.collect(result)
+        }
+      })
 
-    val result = webSalesMorning / webSalesEvening
-
-    println((result* 10000).round / 10000.toDouble)
+    //val result = webSalesMorning / webSalesEvening
+    //(webSalesEvening * 10000).round/10000.toDouble
+    webSalesEvening.writeAsText(outputPath + "/result-14.dat",WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query14 Test")
   }
-
 
   // *************************************************************************
   //     USER DATA TYPES
