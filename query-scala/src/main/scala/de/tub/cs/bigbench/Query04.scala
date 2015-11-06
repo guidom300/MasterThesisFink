@@ -48,20 +48,13 @@ object Query04{
 
     val realQuery = clickAndWebPageType
       .groupBy(2)                               // required by reduceShopCartPython and groupBy sorts the column
-      //.sortGroup(2,Order.ASCENDING)           // SORT BY sessionId, tst_amp, wp_type
+      //.sortGroup(2,Order.ASCENDING)           // SORT BY sessionId, tst_amp, wp_type; groupBy also sort the selected column
       .sortGroup(1,Order.ASCENDING)
       .sortGroup(0,Order.ASCENDING)
       .reduceGroup((in, out : Collector[(Int)]) => reduceShopCartPython(in, out))
-        // return _session_row_counterer
-      //.first(10).print()
+      .reduceGroup((in, out : Collector[(Double)]) => reduceAvg(in, out))
 
-
-
-      //.map(pageCount => (pageCount,1))				                // SELECT SUM(Pages) / Count(*)
-      //.reduce((t1,t2) => (t1._ + t2._1), (t1._2 + t2._2))
-      //.map(item => (item._1 / item._2))
-
-    //realQuery.print()
+    realQuery.print()
 
     //env.execute("Big Bench Query2 Test")
   }
@@ -96,8 +89,6 @@ object Query04{
   def reduceShopCartPython(in: Iterator[(String, Long, String)], out : Collector[(Int)]) = {
 
     var userType: String = null
-    //var sessionId: String = null
-    //var broadcastSet: Traversable[Int] = getRuntimeContext().getBroadcastVariable[Int]("row_count").asScala
 
     var session_row_counter = 0
     var current_key: String = null
@@ -118,10 +109,20 @@ object Query04{
         last_dynamic_row = session_row_counter
     }
 
-
     if (last_dynamic_row > last_order_row)
       out.collect(session_row_counter)
     // new Tuple2
+  }
+
+  def reduceAvg(in: Iterator[Int], out : Collector[Double]) = {
+    var cnt = 0
+    var sum: Double = 0
+
+    in.foreach { userInfo =>
+      sum += userInfo
+      cnt += 1
+    }
+    out.collect(sum/cnt)
   }
 
 

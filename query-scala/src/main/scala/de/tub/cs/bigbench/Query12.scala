@@ -31,7 +31,7 @@ object Query12{
 
     val filteredItemTable = getItemDataSet(env).filter(items => items._category.equals(i_category_IN1) || items._category.equals(i_category_IN2))
     val filteredWebClickTable = getWebClickDataSet(env).filter(items => items._click_date >= 37134 && items._click_date <= 37164)// && items._user_sk != null && items._sales_sk == null)
-    val storeTable = getStoreSalesDataSet(env).filter(items => items._sold_date_sk >= 37134 && items._sold_date_sk <= 37224 && items._customer_sk != null)
+    val storeTable = getStoreSalesDataSet(env).filter(items => items._sold_date_sk >= 37134 && items._sold_date_sk <= 37224 && items._customer_sk.equals(null))
 
     val webInRange = filteredWebClickTable.join(filteredItemTable).where(_._item_sk).equalTo(_._item_sk).apply((wc,i) => (wc))
     val storeInRange = storeTable.join(filteredItemTable).where(_._item_sk).equalTo(_._item_sk).apply((st,i) => (st))
@@ -47,13 +47,8 @@ object Query12{
     println(realQuery)
     //realQuery.print()
 
-    //env.execute("Scala Query 14 Example")
+    env.execute("Scala Query 14 Example")
   }
-
-
-
-
-
 
   // *************************************************************************
   //     USER DATA TYPES
