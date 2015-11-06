@@ -1,24 +1,22 @@
 package de.tub.cs.bigbench
 
+import org.apache.flink.api.common.functions.FlatMapFunction
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
 import org.apache.flink.api.scala._
+import org.apache.flink.core.fs.FileSystem.WriteMode
+import org.apache.flink.util.Collector
+import scala.collection.mutable.ArrayBuffer
 
 
 /*
  * Edit Configuration
  * "/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/"
- * TODO
- * Analyze each required column based on 4 tables
- * Handling null-value with the column of web_sales
  */
 
 object Query12{
 
   // arg_configuration
-  val startDate = "2001-09-02"
-  val endData1 = "2001-10-02"
-  val endData2 = "2001-12-02"
   val i_category_IN1 = "Books"
   val i_category_IN2 = "Electronics"
 
@@ -30,24 +28,47 @@ object Query12{
     val env = ExecutionEnvironment.getExecutionEnvironment
 
     val filteredItemTable = getItemDataSet(env).filter(items => items._category.equals(i_category_IN1) || items._category.equals(i_category_IN2))
-    val filteredWebClickTable = getWebClickDataSet(env).filter(items => items._click_date >= 37134 && items._click_date <= 37164)// && items._user_sk != null && items._sales_sk == null)
-    val storeTable = getStoreSalesDataSet(env).filter(items => items._sold_date_sk >= 37134 && items._sold_date_sk <= 37224 && items._customer_sk.equals(null))
+    val storeTable = getStoreSalesDataSet(env).filter(items => items._sold_date_sk >= 37134 && items._sold_date_sk <= 37224)// && !items._customer_sk.equals(null))
+    val filteredWebClickTable = getWebClickDataSet(env).flatMap(new NullTokenizer)
+        .map(items => new WebClick(items(0).toLong,items(2),items(3),items(5)))                                 // parse elements on matching fiter fucntion
+        .filter(items => items._click_date >= 37134 && items._click_date <= 37164 && !items._user_sk.equals("") && items._sales_sk.equals(""))
 
-    val webInRange = filteredWebClickTable.join(filteredItemTable).where(_._item_sk).equalTo(_._item_sk).apply((wc,i) => (wc))
+    val webInRange = filteredWebClickTable.join(filteredItemTable).where(_._item_sk.toLong).equalTo(_._item_sk).apply((wc,i) => (wc))
     val storeInRange = storeTable.join(filteredItemTable).where(_._item_sk).equalTo(_._item_sk).apply((st,i) => (st))
 
-    val realQuery = webInRange.join(storeInRange).where(_._user_sk).equalTo(_._customer_sk).apply((wc,st) => (wc._user_sk,wc._click_date,st._sold_date_sk))
+    val realQuery = webInRange.join(storeInRange).where(_._user_sk.toLong).equalTo(_._customer_sk).apply((wc,st) => (wc._user_sk,wc._click_date,st._sold_date_sk))
       .filter(items => items._2 < items._3)
-      .map(items => Tuple1(items._1))
-      .sortPartition(0,Order.ASCENDING)         // OREDER BY _user_sk
+      .map(items => Tuple1(items._1.toLong))
+      .distinct(0)
+      .sortPartition(0,Order.ASCENDING)
       .setParallelism(1)
-      .distinct(0)                              // SELECT DISTINCT _user_sk
 
-    .count()            // must be 403
-    println(realQuery)
-    //realQuery.print()
+//    realQuery.print()
+    realQuery.writeAsCsv(outputPath + "/result-12.dat","\n", "|",WriteMode.OVERWRITE)
 
     env.execute("Scala Query 14 Example")
+  }
+
+  class NullTokenizer extends FlatMapFunction[String, ArrayBuffer[String]] {
+    override def flatMap(in: String, out: Collector[ArrayBuffer[String]]) {
+
+      val tuple = ArrayBuffer[String]()
+      var cnt: Int = 0
+
+      var tokens = in.split("|")
+      for(token <- tokens)
+        if(token.equals("|"))
+          cnt += 1
+
+      tokens = in.split("\\|")
+      for(token <- tokens)
+        tuple += token
+
+      if(cnt.equals(tuple.length))
+        tuple += ""
+
+      out.collect(tuple)
+    }
   }
 
   // *************************************************************************
@@ -58,7 +79,8 @@ object Query12{
   case class Item(_item_sk: Long, _current_price: Double, _category: String)
 
   // _click_date_sk(0), _sales_sk(2), _item_sk(3), _user_sk(5),
-  case class WebClick(_click_date: Long, _sales_sk:Long, _item_sk: Long, _user_sk: Long)
+  //case class WebClick(_click_date: Long, _sales_sk:Long, _item_sk: Long, _user_sk: Long)
+  case class WebClick(_click_date: Long, _sales_sk: String, _item_sk: String, _user_sk: String)
 
   //_customer_sk(3), _item_sk(2),_sold_date_sk(0)
   case class StoreSales(_sold_date_sk: Long, _item_sk: Long, _customer_sk: Long)
@@ -97,12 +119,18 @@ object Query12{
   }
 
   // null value on _sales_sk
-  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick] = {
-    env.readCsvFile[WebClick](
-      webClickPath,
-      fieldDelimiter = "|",
-      includedFields = Array(0, 2, 3, 5),
-      lenient = true)
+//  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick] = {
+//    env.readCsvFile[WebClick](
+//      webClickPath,
+//      fieldDelimiter = "|",
+//      includedFields = Array(0, 2, 3, 5),
+//      lenient = true)
+//  }
+
+  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[String] = {
+    env.readTextFile(
+      webClickPath
+      )
   }
 
 
