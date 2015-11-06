@@ -33,7 +33,7 @@ object Query02{
       .sortGroup(2, Order.ASCENDING)
 
     val tmpSession = clickAndWebPageType
-      .reduceGroup((in, out : Collector[(Int, String)]) => reducePython(in, out))
+      .reduceGroup((in, out : Collector[(Long, String)]) => reducePython(in, out))
       .sortPartition(1,Order.DESCENDING)
 
     val pairs = tmpSession
@@ -58,9 +58,9 @@ object Query02{
     env.execute("Big Bench Query2 Test")
   }
 
-  def reducePython(in: Iterator[ClickWebPageType], out : Collector[(Int, String)]) = {
-    var userId: Int = 0
-    var userItem: Int = 0
+  def reducePython(in: Iterator[ClickWebPageType], out : Collector[(Long, String)]) = {
+    var userId: Long = 0
+    var userItem: Long = 0
     var last_click_time: Long = 0
     var tmp_time: Long = 0
 
@@ -87,10 +87,8 @@ object Query02{
   //     USER DATA TYPES
   // *************************************************************************
 
-  case class WebClick(_click_date: Long, _click_time: Long, _item_sk: Int, _user_sk: Int)
-  case class ClickWebPageType(_user_sk: Int, _item_sk: Int, _sum_date: Long)
-  case class TmpSession(_item_sk: Int, _sessionId: String)
-  case class CollectedList(itemArray: Set[Int])
+  case class WebClick(_click_date: Long, _click_time: Long, _item_sk: Long, _user_sk: Long)
+  case class ClickWebPageType(_user_sk: Long, _item_sk: Long, _sum_date: Long)
 
   // *************************************************************************
   //     UTIL METHODS
