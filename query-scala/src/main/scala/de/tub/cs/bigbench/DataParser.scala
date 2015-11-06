@@ -13,8 +13,8 @@ object DataParser{
     // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
-    val webClickStreamsNull = getWebClickDataSetNull(env)
-    webClickStreamsNull.flatMap(new NullTokenizer)
+    val webClickStreamsNull = getWebClickDataSetNull(env).flatMap(new NullTokenizer)
+    //.map(tuple => new WebClickNull(tuple(0),tuple(1),tuple(2),tuple(3),tuple(4),tuple(5)))
       .first(10).print()
   }
 
@@ -24,10 +24,10 @@ object DataParser{
    *
    * Usage:
    * val webClick = env.readTextFile(webClickPath)
-   * webClick.flatMap(new NullTokenizer).print()
+   * webClick.flatMap(new NullTokenizer).map(items = new DataType(items(0)))
    */
-  class NullTokenizer extends FlatMapFunction[String, WebClickNull] {
-    override def flatMap(in: String, out: Collector[WebClickNull]) {
+  class NullTokenizer extends FlatMapFunction[String, ArrayBuffer[String]] {
+    override def flatMap(in: String, out: Collector[ArrayBuffer[String]]) {
 
       val tuple = ArrayBuffer[String]()
       var cnt: Int = 0
@@ -42,15 +42,15 @@ object DataParser{
         tuple += token
 
       if(cnt.equals(tuple.length))
-        tuple += " "
+        tuple += ""
 
-      out.collect(new WebClickNull(tuple(0),tuple(1),tuple(2),tuple(3),tuple(4),tuple(5)))
+      out.collect(tuple)
     }
   }
 
 
 
-//  case class WebClick(_click_date: Long, _click_time: Long, _sales_sk: Long, _item_sk: Long,_page_sk: Long, _user_sk: Long)
+  case class WebClick(_click_date: Long, _click_time: Long, _sales_sk: Long, _item_sk: Long,_page_sk: Long, _user_sk: Long)
   case class WebClickNull(_click_date: String, _click_time: String, _sales_sk: String, _item_sk: String, _page_sk: String, _user_sk: String)
 
   private val webClickPath: String = "/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat"
@@ -60,13 +60,13 @@ object DataParser{
     // use NullTokenizer function to make tuple
   }
 
-//  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick] = {
-//    env.readCsvFile[WebClick](
-//      webClickPath,
-//      fieldDelimiter = "|",
-//      includedFields = Array(0, 1, 2, 3, 4, 5),
-//      lenient = true)
-//  }
+  //  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick] = {
+  //    env.readCsvFile[WebClick](
+  //      webClickPath,
+  //      fieldDelimiter = "|",
+  //      includedFields = Array(0, 1, 2, 3, 4, 5),
+  //      lenient = true)
+  //  }
 
 }
 class DataParser {
