@@ -5,7 +5,7 @@ import org.apache.flink.api.scala._
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
 import org.apache.flink.core.fs.FileSystem.WriteMode
 import org.apache.flink.util.Collector
-
+import scala.collection.JavaConverters._
 
 /*
 Developed By Philip Lee
@@ -50,13 +50,9 @@ object Query14{
       .join(eveningTimeDim).where(_._sold_time_sk).equalTo(_._time_sk).apply((ws,mt) => ws)
       .join(contentsWebPage).where(_._web_page_sk).equalTo(_._web_page_sk).apply((ws,wp) => ws)
       .reduceGroup(new GroupReduceFunction[WebSales, Double] {
-        override def reduce(values: _root_.java.lang.Iterable[WebSales], out: Collector[Double]): Unit = {
-          var cnt: Double = 0
-          val itr = values.iterator()
-          while(itr.hasNext()){
-            itr.next()
-            cnt += 1
-          }
+        override def reduce(values: java.lang.Iterable[WebSales], out: Collector[Double]): Unit = {
+          var cnt = 0
+          values.asScala.foreach(items => cnt += 1)
           out.collect(((webSalesMorning/cnt)*10000).round/10000.toDouble)
         }
       })
