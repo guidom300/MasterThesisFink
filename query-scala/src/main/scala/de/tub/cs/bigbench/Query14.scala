@@ -12,7 +12,9 @@ Developed By Philip Lee
 
 Configuration
 "/home/jjoon/bigBench/data-generator/output/web_sales.dat" "/home/jjoon/bigBench/data-generator/output/household_demographics.dat" "/home/jjoon/bigBench/data-generator/output/time_dim.dat" "/home/jjoon/bigBench/data-generator/output/web_page.dat" "/home/jjoon/bigBench/"
- */
+* TODO
+* how to pass argument in groupReduce
+*/
 
 object Query14{
 
@@ -37,33 +39,28 @@ object Query14{
     val contentsWebPage = getWebPageDataSet(env).filter(items => (items._char_count >= content_len_min && items._char_count <= content_len_max))
     val morningTimeDim = getTimeDimDataSet(env).filter(items => (items._t_hour >= morning_startHour && items._t_hour <= morning_endHour))
     val eveningTimeDim = getTimeDimDataSet(env).filter(items => (items._t_hour >= evening_startHour && items._t_hour <= evening_endHour))
-    val dependtsHouseHold  =getHouseHoldDataSet(env).filter(items => items._dep_count == dependents)
+    val dependentsHouseHold  =getHouseHoldDataSet(env).filter(items => items._dep_count == dependents)
 
-    val webSalesMorning = webSales.join(dependtsHouseHold).where(_._ship_hdemo_sk).equalTo(_._demo_sk).apply((ws,hh) => ws)
+    val webSalesMorning = webSales.join(dependentsHouseHold).where(_._ship_hdemo_sk).equalTo(_._demo_sk).apply((ws,hh) => ws)
       .join(morningTimeDim).where(_._sold_time_sk).equalTo(_._time_sk).apply((ws,mt) => ws)
       .join(contentsWebPage).where(_._web_page_sk).equalTo(_._web_page_sk).apply((ws,wp) => ws)
       .count().toDouble
 
-    val webSalesEvening = webSales.join(dependtsHouseHold).where(_._ship_hdemo_sk).equalTo(_._demo_sk).apply((ws,hh) => ws)
+    val webSalesEvening = webSales.join(dependentsHouseHold).where(_._ship_hdemo_sk).equalTo(_._demo_sk).apply((ws,hh) => ws)
       .join(eveningTimeDim).where(_._sold_time_sk).equalTo(_._time_sk).apply((ws,mt) => ws)
       .join(contentsWebPage).where(_._web_page_sk).equalTo(_._web_page_sk).apply((ws,wp) => ws)
-      //.reduceGroup(((in, out : Collector[(Double)]) => reduceAvg(in, out)))
       .reduceGroup(new GroupReduceFunction[WebSales, Double] {
         override def reduce(values: _root_.java.lang.Iterable[WebSales], out: Collector[Double]): Unit = {
           var cnt: Double = 0
-          var result: Double = 0
           val itr = values.iterator()
           while(itr.hasNext()){
             itr.next()
             cnt += 1
           }
-          result = ((webSalesMorning/cnt)*10000).round/10000.toDouble
-          out.collect(result)
+          out.collect(((webSalesMorning/cnt)*10000).round/10000.toDouble)
         }
       })
 
-    //val result = webSalesMorning / webSalesEvening
-    //(webSalesEvening * 10000).round/10000.toDouble
     webSalesEvening.writeAsText(outputPath + "/result-14.dat",WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query14 Test")
@@ -147,6 +144,26 @@ object Query14{
 class Query14 {
 
 }
+
+// how to pass argument in groupReduce
+//     .reduceGroup(new reduceAvg(webSalesMorning))
+//  @Combinable
+//  class reduceAvg extends GroupReduceFunction[WebSales,Double] {
+//    override def reduce(in: java.lang.Iterable[WebSales], out: Collector[Double]) = {
+//      var cnt = 0
+//      val itr = in.iterator()
+//      while(itr.hasNext){
+//        itr.next()
+//        cnt += 1
+//      }
+//      // scala
+////      val itr = in.iterator
+////      itr.foreach{ items =>
+////      cnt += 1
+////      }
+//      out.collect(value / cnt)
+//    }
+//  }
 /* Table API
 val webSales = getWebSalesDataSet(env).as('_sold_time_sk, '_ship_hdemo_sk, '_web_page_sk).toDataSet[WebSales]
 val houseHold = getHouseHoldDataSet(env).as('_demo_sk, '_dep_count)
