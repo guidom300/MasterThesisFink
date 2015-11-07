@@ -1,6 +1,5 @@
 package de.tub.cs.bigbench
 
-
 import org.apache.flink.api.common.functions.{FlatMapFunction, RichGroupReduceFunction}
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.ExecutionEnvironment

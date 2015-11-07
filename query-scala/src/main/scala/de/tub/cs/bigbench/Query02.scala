@@ -1,7 +1,5 @@
 package de.tub.cs.bigbench
 
-package de.tub.cs.bigbench
-
 import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.api.scala._
