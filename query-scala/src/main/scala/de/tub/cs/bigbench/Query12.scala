@@ -11,7 +11,7 @@ import scala.collection.mutable.ArrayBuffer
 
 /*
  * Edit Configuration
- * "/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/"
+ * "/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/results/"
  */
 
 object Query12{

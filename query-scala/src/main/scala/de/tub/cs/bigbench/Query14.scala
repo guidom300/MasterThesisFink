@@ -11,7 +11,7 @@ import org.apache.flink.util.Collector
 Developed By Philip Lee
 
 Configuration
-"/home/jjoon/bigBench/data-generator/output/web_sales.dat" "/home/jjoon/bigBench/data-generator/output/household_demographics.dat" "/home/jjoon/bigBench/data-generator/output/time_dim.dat" "/home/jjoon/bigBench/data-generator/output/web_page.dat" "/home/jjoon/bigBench/"
+"/home/jjoon/bigBench/data-generator/output/web_sales.dat" "/home/jjoon/bigBench/data-generator/output/household_demographics.dat" "/home/jjoon/bigBench/data-generator/output/time_dim.dat" "/home/jjoon/bigBench/data-generator/output/web_page.dat" "/home/jjoon/bigBench/results"
 * TODO
 * how to pass argument in groupReduce
 */
@@ -61,6 +61,7 @@ object Query14{
         }
       })
 
+//    webSalesEvening.print()
     webSalesEvening.writeAsText(outputPath + "/result-14.dat",WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query14 Test")
