@@ -6,22 +6,16 @@ import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.ExecutionEnvironment
 import org.apache.flink.api.scala._
 import org.apache.flink.api.scala.table._
+import org.apache.flink.core.fs.FileSystem.WriteMode
 import org.apache.flink.util.Collector
 
 
-
+import scala.collection.mutable.ArrayBuffer
 import scala.sys
 
 /*
  * Query 04 without Table API
- * Edit Conf: /home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  /home/jjoon/bigBench/data-generator/output/web_page.dat home/jjoon/bigBench/results
- * Questions;
- * wcs_sales_sk == NULL
- *
- * TODO:
- * .map(pageCount => Tuple2(pageCount.toDouble,1.0))
- * .sortBy
- * Check reduceShopCartPython
+ * Edit Conf: /home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  /home/jjoon/bigBench/data-generator/output/web_page.dat /home/jjoon/bigBench/results
  */
 
 object Query04{
@@ -31,35 +25,33 @@ object Query04{
       return
     }
 
-    // set up execution environment
     val env = ExecutionEnvironment.getExecutionEnvironment
 
-    val webClickStream = getWebClickDataSet(env)
-      .filter(items => items._page_sk != null && items._user_sk != null && items._sales_sk == null)
+    val webClickStream = getWebClickDataSetNull(env).flatMap(new NullTokenizer)
+      .map(items => new WebClick(items(0).toLong,items(1).toLong,items(2),items(3),items(4),items(5)))          // parse elements on matching fiter fucntion
+      .filter(items => !items._page_sk.equals("") && !items._user_sk.equals("") && items._sales_sk.equals(""))
 
-    val webPage = getWebPageDataSet(env)          // required by abandonment session
+    val webPage = getWebPageDataSet(env)
       .filter(items => items._type.equals("order") || items._type.equals("dynamic"))
 
-    val clickAndWebPageType = getWebClickDataSet(env).join(webPage).where(_._page_sk).equalTo(_._page_sk)
-      .apply((wc,wp) => new ClickWebPageType(wc._user_sk,wp._type,(wc._click_date * 24 * 60 * 60 + wc._click_time)))
-      .sortPartition(0,Order.ASCENDING)
-      .sortPartition(2, Order.ASCENDING)
-      .reduceGroup((in, out : Collector[(String, Long, String)]) => reduceSessionPython(in, out))   // return _type, tst_amp, _sessionId
+    val clickAndWebPageType = webClickStream.join(webPage).where(_._page_sk.toLong).equalTo(_._page_sk)
+      .apply((wc,wp) => new ClickWebPageType(wc._user_sk.toLong,wp._type,(wc._click_date * 24 * 60 * 60 + wc._click_time)))
+      .groupBy(0)
+      .sortGroup(2, Order.ASCENDING)
+      .reduceGroup((in, out : Collector[(String, Long, String)]) => reduceSessionPython(in, out))
 
     val realQuery = clickAndWebPageType
-      .groupBy(2)                               // required by reduceShopCartPython and groupBy sorts the column
-      //.sortGroup(2,Order.ASCENDING)           // SORT BY sessionId, tst_amp, wp_type; groupBy also sort the selected column
-      .sortGroup(1,Order.ASCENDING)
+      .groupBy(2)
+      .sortGroup(1,Order.ASCENDING)             // SORT BY sessionId, tst_amp, wp_type; groupBy also sort the selected column
       .sortGroup(0,Order.ASCENDING)
       .reduceGroup((in, out : Collector[(Int)]) => reduceShopCartPython(in, out))
       .reduceGroup((in, out : Collector[(Double)]) => reduceAvg(in, out))
 
-    realQuery.print()
+    //realQuery.print()
+    realQuery.writeAsText(outputPath + "/result-04.dat",WriteMode.OVERWRITE)
 
-    //env.execute("Big Bench Query2 Test")
+    env.execute("Big Bench Query4 Test")
   }
-
-
 
   def reduceSessionPython(in: Iterator[ClickWebPageType], out : Collector[(String, Long, String)]) = {
     var userId: Long = 0
@@ -85,20 +77,16 @@ object Query04{
     }
   }
 
-  // Iterator( _type, tst_amp, _sessionId)
   def reduceShopCartPython(in: Iterator[(String, Long, String)], out : Collector[(Int)]) = {
 
     var userType: String = null
-
-    var session_row_counter = 0
-    var current_key: String = null
+    var session_row_counter = 1
     var last_order_row = -1
     var last_dynamic_row = -1
 
     // count dynamic and order value in the same session
     in.foreach { userInfo =>
       userType = userInfo._1
-      //sessionId = userInfo._3
 
       session_row_counter += 1
 
@@ -111,7 +99,6 @@ object Query04{
 
     if (last_dynamic_row > last_order_row)
       out.collect(session_row_counter)
-    // new Tuple2
   }
 
   def reduceAvg(in: Iterator[Int], out : Collector[Double]) = {
@@ -122,21 +109,41 @@ object Query04{
       sum += userInfo
       cnt += 1
     }
-    out.collect(sum/cnt)
+
+    out.collect(((sum/cnt)*10).round/10.toDouble)
   }
 
+  class NullTokenizer extends FlatMapFunction[String, ArrayBuffer[String]] {
+    override def flatMap(in: String, out: Collector[ArrayBuffer[String]]) {
 
+      val tuple = ArrayBuffer[String]()
+      var cnt: Int = 0
+
+      var tokens = in.split("|")
+      for(token <- tokens)
+        if(token.equals("|"))
+          cnt += 1
+
+      tokens = in.split("\\|")
+      for(token <- tokens)
+        tuple += token
+
+      if(cnt.equals(tuple.length))
+        tuple += ""
+
+      out.collect(tuple)
+    }
+  }
 
   // *************************************************************************
   //     USER DATA TYPES
   // *************************************************************************
   // BIGINT: e.g  _date|_click|_sales|_item|_web_page|_user
-  case class WebClick(_click_date: Long, _click_time: Long, _sales_sk: Long, _item_sk: Long,_page_sk: Long, _user_sk: Long)
+  //case class WebClick(_click_date: Long, _click_time: Long, _sales_sk: Long, _item_sk: Long,_page_sk: Long, _user_sk: Long)
+  case class WebClick(_click_date: Long, _click_time: Long, _sales_sk: String, _item_sk: String, _page_sk: String, _user_sk: String)
   case class WebPage(_page_sk: Long, _type: String)
   // UDC
   case class ClickWebPageType(_user_sk: Long, _type: String, _sum_date: Long)
-  case class TmpSession(_type: String, _tst_amp: Long, _sessionId: String)
-
 
   // *************************************************************************
   //     UTIL METHODS
@@ -160,12 +167,18 @@ object Query04{
 
   // e.g. 36890|26789|0|3725|20|85457
   // e.g  _date|_click|_sales|_item|_web_page|_user
-  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick]= {
-    env.readCsvFile[WebClick](
-      webClickPath,
-      includedFields = Array(0, 1, 2, 3, 4, 5),
-      fieldDelimiter = "|",
-      lenient = true
+//  private def getWebClickDataSet(env: ExecutionEnvironment): DataSet[WebClick]= {
+//    env.readCsvFile[WebClick](
+//      webClickPath,
+//      includedFields = Array(0, 1, 2, 3, 4, 5),
+//      fieldDelimiter = "|",
+//      lenient = true
+//    )
+//  }
+
+  private def getWebClickDataSetNull(env: ExecutionEnvironment): DataSet[String]= {
+    env.readTextFile(
+      webClickPath
     )
   }
 
