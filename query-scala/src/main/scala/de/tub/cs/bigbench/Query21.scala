@@ -161,7 +161,7 @@ object Query21 {
   }
 }
 class Query21 {
-  
+
 }
 
 //1)
