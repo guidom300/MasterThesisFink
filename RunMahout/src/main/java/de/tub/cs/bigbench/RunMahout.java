@@ -1,7 +1,7 @@
 package de.tub.cs.bigbench;
 
 
-import org.apache.mahout.clustering.syntheticcontrol.kmeans.*;
+import org.apache.mahout.clustering.kmeans.KMeansDriver;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -10,9 +10,9 @@ import java.io.FileWriter;
 
 public class RunMahout {
 
-    private static String initPath = ""
-    private static String inputPath ="";
-    private static String outputPath ="";
+    private static String initPath = "/home/jjoon/gitFolder/MasterThesisTest/RunMahout/init";
+    private static String inputPath ="/home/jjoon/bigBench/results/kmeansPoints";
+    private static String outputPath ="/home/jjoon/bigBench/results/";
     private static String target ="";
     private static String categories ="";
     private static String types ="";
@@ -51,9 +51,11 @@ public class RunMahout {
 //        RunLogistic.main(runParams);
 
         final String[] runParams = {
-                "--tempDir", initPath, "-i", inputPath, "-c", initPath, "-o", outputPath, "-dm", "org.apache.mahout.common.distance.CosineDistanceMeasure",
-                "-x", "10", "-ow", "-cl", "-xm"};
-        Job.main(runParams);
+
+                "-i", inputPath, "-c", initPath, "-o", outputPath, "-dm", "org.apache.mahout.common.distance.CosineDistanceMeasure", "-x", "10", "-ow", "-cl",
+                "-xm"};
+        //Job.main(runParams);
+        KMeansDriver.main(runParams);
     }
 }
 
@@ -61,6 +63,9 @@ public class RunMahout {
 //        echo "tmp output: $TEMP_DIR/kmeans-clusters"
 
 //     	hadoop fs -put -f $QUERY_DIR/init-clusters $TEMP_DIR/init-clusters
-//runCmdWithErrorCheck mahout kmeans --tempDir "$MAHOUT_TEMP_DIR" -i "$TEMP_DIR/Vec" -c "$TEMP_DIR/init-clusters" -o "$TEMP_DIR/kmeans-clusters" -dm org.apache.mahout.common.distance.CosineDistanceMeasure
+//runCmdWithErrorCheck mahout kmeans
+// --tempDir "$MAHOUT_TEMP_DIR" -i "$TEMP_DIR/Vec"
+// -c "$TEMP_DIR/init-clusters" -o "$TEMP_DIR/kmeans-clusters"
+// -dm org.apache.mahout.common.distance.CosineDistanceMeasure
 // -x 10 -ow -cl  -xm $BIG_BENCH_ENGINE_HIVE_MAHOUT_EXECUTION
 //        RETURN_CODE=$?
