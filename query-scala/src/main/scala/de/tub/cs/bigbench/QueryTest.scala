@@ -226,6 +226,6 @@ object QueryTest{
 
 
 }
-class QueryTest {
+class   QueryTest {
 
 }
