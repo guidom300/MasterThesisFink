@@ -10,11 +10,9 @@ import scala.collection.JavaConverters._
 
 /*
 Developed By Philip Lee
-"/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/results/"
 
 Configuration
-set q26_i_category_IN='Books';
-set q26_count_ss_item_sk=5;
+"/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/results/"
 */
 
 object Query26{

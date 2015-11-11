@@ -43,10 +43,10 @@ object Query07{
       .filter(items => items._year.equals(YEAR) && items._moy.equals(MONTH))
       .map(items => items._date_sk).collect()
 
-    val customerAddress = getCustomerAddressDataSet(env)
+    val filterCustomerAddress = getCustomerAddressDataSet(env)
       .filter(items => !items._state.isEmpty)
 
-    val joinedCustomer = getCustomerDataSet(env).join(customerAddress).where(_._current_addr_sk).equalTo(_._address_sk)
+    val joinedCustomer = getCustomerDataSet(env).join(filterCustomerAddress).where(_._current_addr_sk).equalTo(_._address_sk)
       .apply((ct,ca) => (ct._customer_sk,ca._state))
 
     val filterStoreSales = getStoreSalesDataSet(env)

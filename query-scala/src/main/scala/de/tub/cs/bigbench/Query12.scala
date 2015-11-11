@@ -9,8 +9,10 @@ import org.apache.flink.util.Collector
 import scala.collection.mutable.ArrayBuffer
 
 /*
- * Edit Configuration
- * "/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/results/"
+Developed By Philip Lee
+
+Configuration
+"/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/results/"
  */
 
 object Query12{

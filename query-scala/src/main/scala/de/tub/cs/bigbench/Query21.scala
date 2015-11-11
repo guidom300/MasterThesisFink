@@ -11,10 +11,6 @@ Developed By Philip Lee
 Configuration
 /home/jjoon/bigBench/data-generator/output/date_dim.dat /home/jjoon/bigBench/data-generator/output/store_sales.dat /home/jjoon/bigBench/data-generator/output/web_sales.dat /home/jjoon/bigBench/data-generator/output/store.dat /home/jjoon/bigBench/data-generator/output/store_returns.dat /home/jjoon/bigBench/data-generator/output/item.dat /home/jjoon/bigBench/results
 */
-// argument
-//set q21_year=2003;
-//set q21_month=1;
-//set q21_limit=100;
 
 object Query21 {
 

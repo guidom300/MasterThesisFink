@@ -7,7 +7,10 @@ import org.apache.flink.core.fs.FileSystem.WriteMode
 import org.apache.flink.util.Collector
 
 /*
- * Edit Conf: /home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  /home/jjoon/bigBench/results
+Developed By Philip Lee
+
+Configuration
+/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  /home/jjoon/bigBench/results
 */
 
 object Query02{

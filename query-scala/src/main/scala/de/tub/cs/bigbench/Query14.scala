@@ -12,6 +12,7 @@ Developed By Philip Lee
 
 Configuration
 "/home/jjoon/bigBench/data-generator/output/web_sales.dat" "/home/jjoon/bigBench/data-generator/output/household_demographics.dat" "/home/jjoon/bigBench/data-generator/output/time_dim.dat" "/home/jjoon/bigBench/data-generator/output/web_page.dat" "/home/jjoon/bigBench/results"
+
 * TODO
 * how to pass argument in groupReduce
 */

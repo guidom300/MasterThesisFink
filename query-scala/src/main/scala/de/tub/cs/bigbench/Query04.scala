@@ -13,8 +13,10 @@ import scala.collection.mutable.ArrayBuffer
 import scala.sys
 
 /*
- * Query 04 without Table API
- * Edit Conf: /home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  /home/jjoon/bigBench/data-generator/output/web_page.dat /home/jjoon/bigBench/results
+Developed By Philip Lee
+
+Configuration
+/home/jjoon/bigBench/data-generator/output/web_clickstreams.dat  /home/jjoon/bigBench/data-generator/output/web_page.dat /home/jjoon/bigBench/results
  */
 
 object Query04{
