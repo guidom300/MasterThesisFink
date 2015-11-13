@@ -55,8 +55,8 @@ object Query28{
 //    println(realQuery1.count())
 //    println(realQuery2.count())
 
-    realQuery1.writeAsCsv(outputPath + "/result28-temp1.dat","\n",",",WriteMode.OVERWRITE)
-    realQuery2.writeAsCsv(outputPath + "/result28-temp2.dat","\n",",",WriteMode.OVERWRITE)
+    realQuery1.writeAsCsv(outputPath + "/result28-temp1.dat","\n",",",WriteMode.OVERWRITE)//.setParallelism(1)
+    realQuery2.writeAsCsv(outputPath + "/result28-temp2.dat","\n",",",WriteMode.OVERWRITE)//.setParallelism(1)
 
     env.execute("Big Bench Query28 Test")
   }
