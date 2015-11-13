@@ -54,7 +54,7 @@ object Query02{
       .first(LIMIT)
 
     //realQuery.print()
-    realQuery.writeAsCsv(outputPath + "/result-02.dat","\n", "|",WriteMode.OVERWRITE)
+    realQuery.writeAsCsv(outputPath + "/result-02.dat","\n", ",",WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query2 Test")
   }

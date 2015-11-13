@@ -63,7 +63,7 @@ object Query07{
         .first(LIMIT)
 
     //realQuery.print()
-    realQuery.writeAsCsv(outputPath + "/result-07.dat","\n", "|",WriteMode.OVERWRITE)
+    realQuery.writeAsCsv(outputPath + "/result-07.dat","\n", ",",WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query7 Test")
   }

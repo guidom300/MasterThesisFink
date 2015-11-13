@@ -97,7 +97,7 @@ object Query14{
       outputPath = args(4)
       true
     } else {
-      System.err.println("Usage: Big Bench 6 Arguements")
+      System.err.println("Usage: Big Bench 5 Arguements")
       false
     }
   }

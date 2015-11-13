@@ -2,17 +2,17 @@ package de.tub.cs.bigbench
 
 import org.apache.flink.api.common.functions.GroupReduceFunction
 import org.apache.flink.api.scala._
-import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
 import org.apache.flink.core.fs.FileSystem.WriteMode
 import org.apache.flink.util.Collector
 import scala.collection.JavaConverters._
+import org.apache.flink.api.common.operators.Order
 
 /*
 Developed By Philip Lee
 
 Configuration
-"/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/store_sales.dat" "/home/jjoon/bigBench/results/"
+"/home/jjoon/bigBench/data-generator/output/item.dat" "/home/jjoon/bigBench/data-generator/output/date_dim.dat"  "/home/jjoon/bigBench/data-generator/output/inventory.dat" "/home/jjoon/bigBench/data-generator/output/warehouse.dat" "/home/jjoon/bigBench/results/"
 */
 
 object Query22{
@@ -21,68 +21,124 @@ object Query22{
   val DATE= "2001-05-08"
   val price_min1=0.98
   val price_max1=1.5
+  val DAY = 24 * 60 * 60 * 1000
+
 
   def main(args: Array[String]) {
     if (!parseParameters(args)) {
       return
     }
 
+
+    val dateFormat = new _root_.java.text.SimpleDateFormat("yyyy-MM-dd")
+    val dateConf = dateFormat.parse(DATE).getTime
+
     val env = ExecutionEnvironment.getExecutionEnvironment
 
-    //val filterItem = getItemDataSet(env)
-    //val filterDate = getDateDimDataSet(env).filter( d_date >= -30 && <= 30)
-    //val filterInventory = getInventoryDataSet(env).filter(min < current_price < max)
-    //  .join(filterDate).where(date).equals(date).apply()
+    val wareHouse = getWarehouseDataSet(env)
+    val filterDateDim = getDateDimDataSet(env).filter(items => Math.abs(dateFormat.parse(items._date).getTime - dateConf)/DAY <= 30)
 
-    // val inventoryJoinWithOthers = filterInventory.join(item).where(item).equals(item).apply()
-    //  .join(warehouse).where(_warehouse).equals(_warehouse).apply( warehouse_name, item_id, date,date)
-    //  .groupBy(warehouse_name, item_id)
-    //  .sum(3,4)
-    //  .filter( _3 <= 0 && _4 >= 0)
-    //  .filter( inv_before > 0)
-    //  .filter( inv_after/inv_before >=  && inv_after/ inv_before <= 3.0 / 2.0)
-    //  .sortPartition(warehouse.Order.ASECNDING).setParallism(10)
-    //  .first(100)
-    //  .print()
+    val invJoinWithOthers = getInventoryDataSet(env)
+      .join(filterDateDim).where(_._date_sk).equalTo(_._date_sk)
+      .join(wareHouse).where(_._1._warehouse_sk).equalTo(_._warehouse_sk).apply((indd,wh) => (indd._1,indd._2,wh))
+
+    val itemJoinWithOthers = getItemDataSet(env).filter(items => items._current_price >= price_min1 && items._current_price <= price_max1)
+      .join(invJoinWithOthers).where(_._item_sk).equalTo(_._1._item_sk).apply((item,others) => (others._3._warehouse_name,item._item_id,others._2._date,others._1._quantity_on))
+      .groupBy(0,1)
+      .reduceGroup(new DiffDate)
+      .filter(items => items._3 > 0 && items._4/items._3 >= 2.0/3.0 && items._4/items._3 <= 3.0/2.0)
+      .sortPartition(0,Order.ASCENDING).setParallelism(1)
+//      .sortPartition(1,Order.ASCENDING).setParallelism(1)   // FLINK 0.10 fix this issue
+      .first(100)
+
+//    itemJoinWithOthers.print()
+    itemJoinWithOthers.writeAsCsv(outputPath + "/result-22.dat","\n", ",",WriteMode.OVERWRITE)
+
+    env.execute("Big Bench Query22 Test")
+  }
+
+  // out: Collector[warehouse_name, item_id, inv_before, inv_after]
+  class DiffDate extends GroupReduceFunction[(String, String, String, Int),(String, String, Double, Double)] {
+    override def reduce(in: java.lang.Iterable[(String, String, String, Int)], out: Collector[(String, String, Double, Double)]) = {
 
 
-    env.execute("Big Bench Query14 Test")
+      val dateFormat = new _root_.java.text.SimpleDateFormat("yyyy-MM-dd")
+      val dateConf = dateFormat.parse(DATE).getTime
+
+      var wareHouse_name = ""
+      var item_id = ""
+      var date = ""
+      var before_quantity1 = 0
+      var after_quantity2 = 0
+
+      in.asScala.foreach{ items =>
+
+        wareHouse_name = items._1
+        item_id = items._2
+        date = items._3
+
+        if((dateFormat.parse(date).getTime - dateConf)/DAY <0)
+          before_quantity1 += items._4
+        else if((dateFormat.parse(date).getTime - dateConf)/DAY >=0)
+          after_quantity2 += items._4
+
+      }
+
+      out.collect(wareHouse_name,item_id,before_quantity1.toDouble,after_quantity2.toDouble)
+    }
   }
 
 
   // *************************************************************************
   //     USER DATA TYPES
   // *************************************************************************
-  // Long(2) Long (3)
-  case class StoreSales(_item_sk: Long, _customer_sk: Long)
-  // Long (0) Int (9) / String (12)
-  case class Item(_item_sk: Long, _class_id: Int, _category: String )
+  //Long(0), String(2)
+  case class WareHouse(_warehouse_sk: Long,_warehouse_name: String)
+  //Long(0) String(2)
+  case class DateDim(_date_sk: Long, _date: String)
+  //Long(0), Long(1), Long(2), Int(3)
+  case class Inventory(_date_sk: Long, _item_sk: Long, _warehouse_sk: Long, _quantity_on: Int)
+  //Long(0), String(1), Double(6)
+  case class Item(_item_sk: Long, _item_id: String, _current_price: Double )
 
   // *************************************************************************
   //     UTIL METHODS
   // *************************************************************************
 
-  private var storeSalesPath: String = null
+  private var wareHousePath: String = null
+  private var inventoryPath: String = null
+  private var dateDimPath: String = null
   private var itemPath: String = null
   private var outputPath: String = null
 
   private def parseParameters(args: Array[String]): Boolean = {
-    if (args.length == 3) {
+    if (args.length == 5) {
       itemPath = args(0)
-      storeSalesPath = args(1)
-      outputPath = args(2)
+      dateDimPath = args(1)
+      inventoryPath = args(2)
+      wareHousePath = args(3)
+      outputPath = args(4)
       true
     } else {
-      System.err.println("Usage: Big Bench 3 Arguements")
+      System.err.println("Usage: Big Bench 5 Arguements")
       false
     }
   }
 
-  private def getStoreSalesDataSet(env: ExecutionEnvironment): DataSet[StoreSales] = {
-    env.readCsvFile[StoreSales](
-      storeSalesPath,
+  private def getWarehouseDataSet(env: ExecutionEnvironment): DataSet[WareHouse] = {
+    env.readCsvFile[WareHouse](
+      wareHousePath,
       fieldDelimiter = "|",
-      includedFields = Array(2, 3),
+      includedFields = Array(0, 2),
+      lenient = true
+    )
+  }
+
+  private def getDateDimDataSet(env: ExecutionEnvironment): DataSet[DateDim] = {
+    env.readCsvFile[DateDim](
+      dateDimPath,
+      fieldDelimiter = "|",
+      includedFields = Array(0, 2),
       lenient = true
     )
   }
@@ -91,7 +147,16 @@ object Query22{
     env.readCsvFile[Item](
       itemPath,
       fieldDelimiter = "|",
-      includedFields = Array(0, 9, 12),
+      includedFields = Array(0, 1, 5),
+      lenient = true
+    )
+  }
+
+  private def getInventoryDataSet(env: ExecutionEnvironment): DataSet[Inventory] = {
+    env.readCsvFile[Inventory](
+      inventoryPath,
+      fieldDelimiter = "|",
+      includedFields = Array(0, 1, 2, 3),
       lenient = true
     )
   }

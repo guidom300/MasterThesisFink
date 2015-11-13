@@ -45,7 +45,7 @@ object Query12{
       .setParallelism(1)
 
 //    realQuery.print()
-    realQuery.writeAsCsv(outputPath + "/result-12.dat","\n", "|",WriteMode.OVERWRITE)
+    realQuery.writeAsCsv(outputPath + "/result-12.dat","\n", ",",WriteMode.OVERWRITE)
 
     env.execute("Scala Query 14 Example")
   }
@@ -105,7 +105,7 @@ object Query12{
       outputPath = args(3)
       true
     } else {
-      System.err.println("Usage: Big Bench 6 Arguements")
+      System.err.println("Usage: Big Bench 4 Arguements")
       false
     }
   }
