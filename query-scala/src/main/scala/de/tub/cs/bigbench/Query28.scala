@@ -1,12 +1,8 @@
 package de.tub.cs.bigbench
 
-import org.apache.flink.api.common.functions.GroupReduceFunction
 import org.apache.flink.api.scala._
-import org.apache.flink.api.common.operators.Order
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
 import org.apache.flink.core.fs.FileSystem.WriteMode
-import org.apache.flink.util.Collector
-import scala.collection.JavaConverters._
 
 /*
 Developed By Philip Lee
