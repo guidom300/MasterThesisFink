@@ -11,7 +11,8 @@ MasterThesisTest
 - JAR_NAME_JAVA="flink_java.jar"
 
 *Please make jar_package file like the above configuration then move it to engines/flink/queries/*
-*Then you can run a commend line >> ./bin/bigBench runQuery -q 30 -U -b*
+
+*Then you can run a commend line >>* **./bin/bigBench runQuery -q 30 -U -b**
 
 
 *Studyiung Table API; example is TPCH Query*
