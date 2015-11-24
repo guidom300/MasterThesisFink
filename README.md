@@ -15,7 +15,7 @@ MasterThesisTest
 *Then you can run a commend line >>* **./bin/bigBench runQuery -q 30 -U -b**
 
 
-*Studyiung Table API; example is TPCH Query*
+
 
 *Query Folder Scala from Philip, Java from Guido*
 
