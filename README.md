@@ -2,15 +2,15 @@
 MasterThesisTest
 
 *How to use Big-Bench-Flink*
-**in run.sh**
+**Environment Variable in run.sh**
 - SCALA_QUERIES+=(2 4 7 9 12 14 21 22 26 28)
 - JAVA_QUERIES+=(1 5 6 8 11 15 17 24 25 29)
 - PACKAGE_NAME="de.tub.cs.bigbench."
 - JAR_NAME_SCALA="flink_scala.jar"
 - JAR_NAME_JAVA="flink_java.jar"
 
-**Please make jar_package file like the above configuration then move it to engines/flink/queries/**
-**Then you can run a commend line >> ./bin/bigBench runQuery -q 30 -U -b**
+*Please make jar_package file like the above configuration then move it to engines/flink/queries/*
+*Then you can run a commend line >> ./bin/bigBench runQuery -q 30 -U -b*
 
 
 *Studyiung Table API; example is TPCH Query*
