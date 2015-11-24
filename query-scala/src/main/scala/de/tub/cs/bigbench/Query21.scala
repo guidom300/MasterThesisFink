@@ -56,7 +56,7 @@ object Query21 {
 //      .sortPartition(3,Order.ASCENDING)
 
 //    ssJoinSr.print()
-    ssJoinSr.writeAsCsv(outputPath + "/result-21.dat","\n", ",",WriteMode.OVERWRITE)
+    ssJoinSr.writeAsCsv(outputPath,"\n", ",",WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query21 Test")
   }

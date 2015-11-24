@@ -59,7 +59,7 @@ object Query14{
       })
 
 //    webSalesEvening.print()
-    webSalesEvening.writeAsText(outputPath + "/result-14.dat",WriteMode.OVERWRITE)
+    webSalesEvening.writeAsText(outputPath, WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query14 Test")
   }

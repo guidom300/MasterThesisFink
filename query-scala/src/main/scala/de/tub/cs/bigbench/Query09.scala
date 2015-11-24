@@ -73,7 +73,7 @@ object Query09{
       .reduce((t1,t2) => t1+t2)
 
 //    realQuery.print()
-    realQuery.writeAsText(outputPath + "/result-09.dat",WriteMode.OVERWRITE)
+    realQuery.writeAsText(outputPath, WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query09 Test")
   }

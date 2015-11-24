@@ -39,7 +39,7 @@ object Query26{
       .setParallelism(1)
 
 //    storeSales.print()
-    storeSales.writeAsCsv(outputPath + "/result-26.dat","\n", ",",WriteMode.OVERWRITE)
+    storeSales.writeAsCsv(outputPath,"\n", ",",WriteMode.OVERWRITE)
     // run K-means algorithms on Mahout for clustering
 
     env.execute("Big Bench Query14 Test")

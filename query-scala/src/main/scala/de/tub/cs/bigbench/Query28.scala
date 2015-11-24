@@ -3,6 +3,7 @@ package de.tub.cs.bigbench
 import org.apache.flink.api.scala._
 import org.apache.flink.api.scala.{DataSet, ExecutionEnvironment}
 import org.apache.flink.core.fs.FileSystem.WriteMode
+import org.apache.flink.api.common.operators.Order
 
 /*
 Developed By Philip Lee
@@ -19,40 +20,21 @@ object Query28{
     }
 
     val env = ExecutionEnvironment.getExecutionEnvironment
+    // NEXT_VERSION
+    val productReview = getProductReviewsDataSet(env).sortPartition(0,Order.ASCENDING).setParallelism(1)
 
-    val realQuery1 = getProductReviewsDataSet(env).filter(items => Array(1,2,3).contains(items._review_sk % 5))
-      .map { items => (
-        items._review_rating,
-        items._review_rating match {
-          case 1 => "NEG"
-          case 2 => "NEG"
-          case 3 => "NEU"
-          case 4 => "POS"
-          case 5 => "POS"
-        },
-        items._review_content
-        )
-      }
+    val realQuery1 = productReview.filter(items => Array(1,2,3,4,5,6,7,8,9).contains(items._review_sk % 10))
+//          .map { items => (
+//            items._review_rating,
+//            items._review_rating,
+//            items._review_content
+//            )
+//          }
+    val realQuery2 = productReview.filter(items => Array(0).contains(items._review_sk % 10))
 
-    val realQuery2 = getProductReviewsDataSet(env).filter(items => Array(0,4).contains(items._review_sk % 5))
-      .map { items => (
-        items._review_rating,
-        items._review_rating match {
-          case 1 => "NEG"
-          case 2 => "NEG"
-          case 3 => "NEU"
-          case 4 => "POS"
-          case 5 => "POS"
-        },
-        items._review_content
-        )
-      }
 
-//    println(realQuery1.count())
-//    println(realQuery2.count())
-
-    realQuery1.writeAsCsv(outputPath + "/result28-temp1.dat","\n",",",WriteMode.OVERWRITE)//.setParallelism(1)
-    realQuery2.writeAsCsv(outputPath + "/result28-temp2.dat","\n",",",WriteMode.OVERWRITE)//.setParallelism(1)
+    realQuery1.writeAsCsv(outputPath + "/result28-temp1","\n",",",WriteMode.OVERWRITE).setParallelism(1)
+    realQuery2.writeAsCsv(outputPath + "/result28-temp2","\n",",",WriteMode.OVERWRITE).setParallelism(1)
 
     env.execute("Big Bench Query28 Test")
   }
@@ -97,3 +79,31 @@ object Query28{
 class Query28 {
 
 }
+// OLD_VERSION
+//    val realQuery1 = getProductReviewsDataSet(env).filter(items => Array(1,2,3).contains(items._review_sk % 5))
+//      .map { items => (
+//        items._review_rating,
+//        items._review_rating match {
+//          case 1 => "NEG"
+//          case 2 => "NEG"
+//          case 3 => "NEU"
+//          case 4 => "POS"
+//          case 5 => "POS"
+//        },
+//        items._review_content
+//        )
+//      }
+//
+//    val realQuery2 = getProductReviewsDataSet(env).filter(items => Array(0,4).contains(items._review_sk % 5))
+//      .map { items => (
+//        items._review_rating,
+//        items._review_rating match {
+//          case 1 => "NEG"
+//          case 2 => "NEG"
+//          case 3 => "NEU"
+//          case 4 => "POS"
+//          case 5 => "POS"
+//        },
+//        items._review_content
+//        )
+//      }

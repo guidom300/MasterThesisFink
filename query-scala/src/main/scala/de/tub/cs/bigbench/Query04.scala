@@ -49,7 +49,7 @@ object Query04{
       .reduceGroup((in, out : Collector[(Double)]) => reduceAvg(in, out))
 
     //realQuery.print()
-    realQuery.writeAsText(outputPath + "/result-04.dat",WriteMode.OVERWRITE)
+    realQuery.writeAsText(outputPath, WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query4 Test")
   }

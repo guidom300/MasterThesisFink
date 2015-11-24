@@ -52,7 +52,7 @@ object Query22{
       .first(100)
 
 //    itemJoinWithOthers.print()
-    itemJoinWithOthers.writeAsCsv(outputPath + "/result-22.dat","\n", ",",WriteMode.OVERWRITE)
+    itemJoinWithOthers.writeAsCsv(outputPath,"\n", ",",WriteMode.OVERWRITE)
 
     env.execute("Big Bench Query22 Test")
   }

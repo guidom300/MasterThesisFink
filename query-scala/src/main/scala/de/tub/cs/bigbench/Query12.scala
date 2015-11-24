@@ -45,7 +45,7 @@ object Query12{
       .setParallelism(1)
 
 //    realQuery.print()
-    realQuery.writeAsCsv(outputPath + "/result-12.dat","\n", ",",WriteMode.OVERWRITE)
+    realQuery.writeAsCsv(outputPath,"\n", ",",WriteMode.OVERWRITE)
 
     env.execute("Scala Query 14 Example")
   }
