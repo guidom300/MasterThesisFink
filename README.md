@@ -2,6 +2,7 @@
 MasterThesisTest
 
 *How to use Big-Bench-Flink*
+
 **Environment Variable in run.sh**
 - SCALA_QUERIES+=(2 4 7 9 12 14 21 22 26 28)
 - JAVA_QUERIES+=(1 5 6 8 11 15 17 24 25 29)
