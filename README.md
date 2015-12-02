@@ -9,6 +9,7 @@ MasterThesisTest
 - PACKAGE_NAME="de.tub.cs.bigbench."
 - JAR_NAME_SCALA="flink_scala.jar"
 - JAR_NAME_JAVA="flink_java.jar"
+- REST_QUERIES+=(3 10 16 18 19 20 23 27 30)
 
 *Please make jar_package file like the above configuration then move it to engines/flink/queries/*
 
