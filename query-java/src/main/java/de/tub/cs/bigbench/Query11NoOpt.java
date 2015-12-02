@@ -1,27 +1,28 @@
 package de.tub.cs.bigbench;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.flink.api.common.functions.*;
+import org.apache.flink.api.common.functions.FilterFunction;
+import org.apache.flink.api.common.functions.GroupReduceFunction;
+import org.apache.flink.api.common.functions.JoinFunction;
+import org.apache.flink.api.common.functions.MapFunction;
 import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.aggregation.Aggregations;
-import org.apache.flink.api.java.functions.FunctionAnnotation;
-import org.apache.flink.api.java.tuple.*;
-
+import org.apache.flink.api.java.tuple.Tuple1;
+import org.apache.flink.api.java.tuple.Tuple2;
+import org.apache.flink.api.java.tuple.Tuple3;
+import org.apache.flink.api.java.tuple.Tuple4;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.util.Collector;
 
-import java.text.DateFormat;;
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.lang.Math;
-
 
 /**
- * Created by gm on 25/10/15.
+ * Created by gm on 02/12/15.
  */
-public class Query11 {
-
+public class Query11NoOpt {
     public static String q11_product_reviews_mask;
     public static String q11_date_dim_mask;
     public static String q11_web_sales_mask;
@@ -69,6 +70,7 @@ public class Query11 {
                         .and(Aggregations.SUM, 0)
                         .map(new GetP());
 
+
         DataSet<Tuple1<Long>> dd =
                 date_dim
                         .filter(new FilterDateDim())
@@ -76,37 +78,36 @@ public class Query11 {
 
         DataSet<Tuple2<Long, Double>> s =
                 web_sales
-                        .joinWithTiny(dd)
+                        .join(dd)
                         .where(0)
                         .equalTo(0)
-                        .with(new WsJoinDateDim())
+                        .with(new DateDimJoinWs())
                         .groupBy(0)
                         .aggregate(Aggregations.SUM, 1)
                         .sortPartition(0, Order.ASCENDING).setParallelism(1);
 
         DataSet<Tuple3<Integer, Integer, Double>> q11_review_stats_tmp =
                 p
-                        .joinWithTiny(s)
+                        .join(s)
                         .where(0)
                         .equalTo(0)
-                        .with(new PJoinS());
+                        .with(new PJoinS2());
 
         DataSet<Tuple3<Integer, Double, Double>> means =
                 q11_review_stats_tmp
                         .groupBy(0)
                         .reduceGroup(new Reducer());
 
-
         DataSet<Tuple1<Double>> result =
-        q11_review_stats_tmp
-                .joinWithTiny(means)
-                .where(0)
-                .equalTo(0)
-                .with(new CorrJoinMeans())
-                .aggregate(Aggregations.SUM, 0)
-                .and(Aggregations.SUM, 1)
-                .and(Aggregations.SUM, 2)
-                .map(new Correlation());
+                q11_review_stats_tmp
+                        .join(means)
+                        .where(0)
+                        .equalTo(0)
+                        .with(new CorrJoinMeans())
+                        .aggregate(Aggregations.SUM, 0)
+                        .and(Aggregations.SUM, 1)
+                        .and(Aggregations.SUM, 2)
+                        .map(new Correlation());
 
         result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
@@ -132,7 +133,6 @@ public class Query11 {
         }
     }
 
-    @FunctionAnnotation.ReadFields("f0; f1")
     public static class Ones implements MapFunction<ProdReviews, Tuple3<Integer, Long, Integer>> {
         @Override
         public Tuple3<Integer, Long, Integer> map(ProdReviews pr) throws Exception {
@@ -140,7 +140,6 @@ public class Query11 {
         }
     }
 
-    @FunctionAnnotation.ForwardedFields("f1->f0")
     public static class GetP implements MapFunction<Tuple3<Integer, Long, Integer>, Tuple3<Long, Integer, Double>> {
         @Override
         public Tuple3<Long, Integer, Double> map(Tuple3<Integer, Long, Integer> row) throws Exception {
@@ -148,16 +147,24 @@ public class Query11 {
         }
     }
 
-    @FunctionAnnotation.ForwardedFieldsFirst("f1->f0; f2->f1")
-    public static class WsJoinDateDim implements JoinFunction<WebSales, Tuple1<Long>, Tuple2<Long, Double>>{
+    public static class DateDimJoinWs implements JoinFunction<WebSales, Tuple1<Long>, Tuple2<Long, Double>> {
+
         @Override
         public Tuple2<Long, Double> join(WebSales ws, Tuple1<Long> dd) throws Exception {
             return new Tuple2<>(ws.f1, ws.f2);
         }
     }
 
-    @FunctionAnnotation.ForwardedFieldsFirst("f1; f2")
     public static class PJoinS
+            implements JoinFunction<Tuple3<Long, Integer, Double>, Tuple2<Long, Double>, Tuple4<Long, Integer, Double, Double>>{
+
+        @Override
+        public Tuple4<Long, Integer, Double, Double> join(Tuple3<Long, Integer, Double> p, Tuple2<Long, Double> s) throws Exception {
+            return new Tuple4<>(p.f0, p.f1, p.f2, s.f1);
+        }
+    }
+
+    public static class PJoinS2
             implements JoinFunction<Tuple3<Long, Integer, Double>, Tuple2<Long, Double>, Tuple3<Integer, Integer, Double>>{
 
         @Override

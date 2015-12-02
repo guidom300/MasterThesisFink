@@ -1,5 +1,6 @@
 package de.tub.cs.bigbench;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.FlatMapFunction;
 import org.apache.flink.api.common.functions.GroupReduceFunction;
@@ -8,37 +9,54 @@ import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.aggregation.Aggregations;
+import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.*;
+import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.util.Collector;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 
+import static org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint.BROADCAST_HASH_SECOND;
+
 /**
  * Created by gm on 25/11/15.
  */
 public class Query08 {
-    public static final String web_clickstreams_mask = "111011";
-    public static final String date_dim_mask = "1010000000000000000000000000";
-    public static final String web_page_mask = "10000000010000";
-    public static final String web_sales_mask = "1000000000000000010000000000010000";
+    public static String q08_date_dim_mask;
+    public static String q08_web_page_mask;
+    public static String q08_web_sales_mask;
 
-    public static final String web_clickstreams_path = "/Users/gm/bigbench/data-generator/output/web_clickstreams.dat";
-    public static final String date_dim_path = "/Users/gm/bigbench/data-generator/output/date_dim.dat";
-    public static final String web_page_path = "/Users/gm/bigbench/data-generator/output/web_page.dat";
-    public static final String web_sales_path = "/Users/gm/bigbench/data-generator/output/web_sales.dat";
+    public static String input_path;
+    public static String output_path;
+    public static String web_clickstreams_path;
+    public static String date_dim_path;
+    public static String web_page_path;
+    public static String web_sales_path;
 
     // Conf
     public static final String startDate = "2001-09-02";
     public static final String endDate = "2002-09-02";
     public static final Long q08_seconds_before_purchase = (long)259200;   // 3 days in sec = 3*24*60*60
-
     public static final String web_page_type_filter = "review";
 
     public static void main(String[] args) throws Exception {
 
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        PropertiesConfiguration config = new PropertiesConfiguration("config.properties");
+
+        if(parseParameters(args) == 1)
+            return;
+
+        q08_date_dim_mask = config.getString("q08_date_dim_mask");
+        q08_web_page_mask = config.getString("q08_web_page_mask");
+        q08_web_sales_mask = config.getString("q08_web_sales_mask");
+
+        web_clickstreams_path = input_path + "/web_clickstreams/web_clickstreams.dat";
+        date_dim_path = input_path + "/date_dim/date_dim.dat";
+        web_page_path = input_path + "/web_page/web_page.dat";
+        web_sales_path = input_path + "/web_sales/web_sales.dat";
 
         // get input data
         //web_clickstreams -> wcs_click_date_sk (Long), wcs_click_time_sk (Long), wcs_sales_sk (Long),
@@ -61,25 +79,24 @@ public class Query08 {
 
         DataSet<Tuple4<Long, Long, String, String>> q08_map_output =
                 web_clickstreams
-                        .join(dd)
+                        .join(dd, BROADCAST_HASH_SECOND)
                         .where(0)
                         .equalTo(0)
                         .with(new WebClickStreamLeftJoinDD())
-                        .join(web_page)
+                        .join(web_page, BROADCAST_HASH_SECOND)
                         .where(3)
                         .equalTo(0)
                         .with(new WebClickStreamJoinWebPage())
-                                //        .partitionByHash(4)
-                                //        .mapPartition(new PartitionMapper())
                         .sortPartition(0, Order.ASCENDING).setParallelism(1)
                         .sortPartition(1, Order.ASCENDING).setParallelism(1)
                         .sortPartition(2, Order.ASCENDING).setParallelism(1)
                         .sortPartition(3, Order.ASCENDING).setParallelism(1);
-        //        .writeAsCsv("/Users/gm/bigbench/data-generator/output/q8_tmp1.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
         DataSet<Tuple1<Long>> salesWithViewedReviews =
                 q08_map_output
-                        .reduceGroup(new FilterSalesReview());
+                        .reduceGroup(new FilterSalesReview())
+                        .groupBy(0)
+                        .first(1);;
 
         DataSet<Tuple2<Double, Long>> allSalesInYear =
                 web_sales
@@ -88,59 +105,29 @@ public class Query08 {
                         .equalTo(0)
                         .with(new WebSalesJoinDD());
 
-        DataSet<Tuple1<Double>> q08_all_sales =
+        DataSet<Tuple2<Integer, Double>> q08_all_sales =
                 allSalesInYear
-                        .aggregate(Aggregations.SUM, 0)
-                        .project(0);
+                        .reduceGroup(new MyGroupReducer());
 
-        q08_all_sales.print();
-
-
-        DataSet<Tuple1<Double>> q08_review_sales =
+        DataSet<Tuple2<Integer, Double>> q08_review_sales =
                 allSalesInYear
                         .join(salesWithViewedReviews)
                         .where(1)
                         .equalTo(0)
                         .with(new AllSalesLeftJoinSalesReviews())
-                        .aggregate(Aggregations.SUM, 0)
-                        .project(0);
+                        .groupBy(0)
+                        .aggregate(Aggregations.SUM, 1);
 
-        //writeAsCsv("/Users/gm/bigbench/data-generator/output/q8_tmp.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
+        DataSet<Tuple2<Double, Double>> result =
+                q08_review_sales
+                        .join(q08_all_sales)
+                        .where(0)
+                        .equalTo(0)
+                        .with(new RSJoinAS());
 
+        result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE);
 
-        //sales_which_read_reviews.writeAsCsv("/Users/gm/bigbench/data-generator/output/q8_tmp.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
-
-        q08_review_sales.print();
-
-
-        //env.execute();
-
-        /*DataSet<Tuple4<Long, Integer, Double, Double>> q11_review_stats =
-        p
-                .join(s)
-                .where(0)
-                .equalTo(0).print();
-                //.with(new PJoinS());
-
-
-        //q11_review_stats.writeAsCsv("/tmp/q11.csv").setParallelism(1);
-
-        //DataSet<Tuple1<Double>> avg_rating = q11_review_stats.project(2);
-        //avg_rating.print();
-
-        /*
-        List<Tuple2<String, Integer>> r_count = new ArrayList<Tuple2<String, Integer>>();
-        myResult.output(new LocalCollectionOutputFormat(outData));
-        PearsonsCorrelation PC = new PearsonsCorrelation();
-        Double cor = PC.correlation(q11_review_stats.project(1), q11_review_stats.project(2));
-        */
-
-        // emit result
-        //result.writeAsCsv(outputPath, "\n", "|");
-
-        // execute program
-
-
+        env.execute("Query8");
     }
 
 
@@ -168,6 +155,7 @@ public class Query08 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4")
     public static class WebClickStreamLeftJoinDD implements JoinFunction<WebClick, Tuple1<Long>, WebClick> {
         @Override
         public WebClick join(WebClick wc, Tuple1<Long> dd) throws Exception {
@@ -175,34 +163,31 @@ public class Query08 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f4->f0; f2")
+    @FunctionAnnotation.ForwardedFieldsSecond("f1->f3")
     public static class WebClickStreamJoinWebPage
             implements JoinFunction<WebClick, WebPage, Tuple4<Long, Long, String, String>> {
-        //wcs_user_sk,
-        //(wcs_click_date_sk * 86400L + wcs_click_time_sk) AS tstamp_inSec
-        //        wcs_sales_sk, wp_type
 
         @Override
         public Tuple4<Long, Long, String, String> join(WebClick wc, WebPage wp) throws Exception {
-            return new Tuple4<>(wc.getUser(), wc.getDate() * (long)86400 + wc.getTime(), wc.getSale(), wp.getType());
+            return new Tuple4<>(wc.f4, wc.f0 * (long)86400 + wc.f1, wc.f2, wp.f1);
         }
     }
 
     public static class FilterSalesReview implements GroupReduceFunction<Tuple4<Long, Long, String, String>, Tuple1<Long>> {
         @Override
         public void reduce(Iterable<Tuple4<Long, Long, String, String>> in, Collector<Tuple1<Long>> out) throws Exception {
-            ArrayList<Long> uniqSales = new ArrayList<Long>();
-            Long current_key = null;
+            Long current_key = (long)-1;
             Long last_review_date = (long)-1;
             Long last_sales_sk = null;
-            Long tstamp_inSec = null;
 
             for (Tuple4<Long, Long, String, String> curr : in) {
-                if (current_key != curr.f0) {
+                if (!(current_key.equals(curr.f0))) {
                     current_key = curr.f0;
                     last_review_date = (long) -1;
                     last_sales_sk = null;
                 }
-                tstamp_inSec = (long) curr.f1;
+                Long tstamp_inSec = (long) curr.f1;
                 if (curr.f3.equals(web_page_type_filter)) {
                     last_review_date = tstamp_inSec;
                 } else {
@@ -210,10 +195,7 @@ public class Query08 {
                         if ((last_review_date > 0) && ((tstamp_inSec - last_review_date) <= q08_seconds_before_purchase)
                                 && (last_sales_sk != Long.valueOf(curr.f2))) {
                             last_sales_sk = Long.valueOf(curr.f2);
-                            if(!(uniqSales.contains(Long.valueOf(curr.f2)))){
-                                out.collect(new Tuple1<>(Long.valueOf(curr.f2)));
-                                uniqSales.add(Long.valueOf(curr.f2));
-                            }
+                            out.collect(new Tuple1<>(Long.valueOf(curr.f2)));
                         }
                     }
                 }
@@ -221,37 +203,42 @@ public class Query08 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f2->f0; f1")
     public static class WebSalesJoinDD implements JoinFunction<WebSales, Tuple1<Long>, Tuple2<Double, Long>> {
         @Override
         public Tuple2<Double, Long> join(WebSales ws, Tuple1<Long> dd) throws Exception {
-            return new Tuple2<>(ws.getNetPaid(), ws.getOrderNumber());
+            return new Tuple2<>(ws.f2, ws.f1);
         }
     }
 
     public static class MyGroupReducer
-            implements GroupReduceFunction<Tuple3<Integer, Long, Double>, Tuple5<Integer, Long, Double, Double, Long>> {
-        //SELECT  wcs_user_sk,(wcs_click_date_sk * 86400L + wcs_click_time_sk) AS tstamp_inSec,
-        // --every wcs_click_date_sk equals
-        // one day => convert to seconds date*24*60*60=date*86400 and add time_sk wcs_sales_sk, wp_type
-        @Override
-        public void reduce(Iterable<Tuple3<Integer, Long, Double>> rows, Collector<Tuple5<Integer, Long, Double, Double, Long>> out) throws Exception {
-            Integer cat = null;
-            Long x = null;
-            Double y = 0.0;
+            implements GroupReduceFunction<Tuple2<Double, Long>, Tuple2<Integer, Double>> {
 
-            for (Tuple3<Integer, Long, Double> curr : rows) {
-                cat = curr.f0;
-                x = curr.f1;
-                y += curr.f2;
+        @Override
+        public void reduce(Iterable<Tuple2<Double, Long>> in, Collector<Tuple2<Integer, Double>> out) throws Exception {
+            Double sum_ws_net_paid = 0.0;
+            for (Tuple2<Double, Long> curr : in) {
+                sum_ws_net_paid += curr.f0;
             }
-            out.collect(new Tuple5<>(cat, x, y, x * y, x * x));
+            out.collect(new Tuple2<>(1, sum_ws_net_paid));
+
         }
     }
 
-    public static class AllSalesLeftJoinSalesReviews implements JoinFunction<Tuple2<Double, Long>, Tuple1<Long>, Tuple2<Double, Long>> {
+    @FunctionAnnotation.ForwardedFieldsFirst("f0->f1")
+    public static class AllSalesLeftJoinSalesReviews implements JoinFunction<Tuple2<Double, Long>, Tuple1<Long>, Tuple2<Integer, Double>> {
         @Override
-        public Tuple2<Double, Long> join(Tuple2<Double, Long> all, Tuple1<Long> rev) throws Exception {
-            return new Tuple2<>(all.f0, all.f1);
+        public Tuple2<Integer, Double> join(Tuple2<Double, Long> all, Tuple1<Long> rev) throws Exception {
+            return new Tuple2<>(1, all.f0);
+        }
+    }
+
+    public static class RSJoinAS implements JoinFunction<Tuple2<Integer, Double>, Tuple2<Integer, Double>,
+            Tuple2<Double, Double>> {
+        @Override
+        public Tuple2<Double, Double> join(Tuple2<Integer, Double> rs, Tuple2<Integer, Double>
+                as) throws Exception {
+            return new Tuple2<>(rs.f1, as.f1 - rs.f1);
         }
     }
 
@@ -327,15 +314,17 @@ public class Query08 {
     //     UTIL METHODS
     // *************************************************************************
 
-    /*
-    private static DataSet<WebClick> getWebClickDataSet(ExecutionEnvironment env) {
-        return env.readCsvFile(web_clickstreams_path)
-                .fieldDelimiter("|")
-                .includeFields(web_clickstreams_mask)
-                .ignoreInvalidLines()
-                .tupleType(WebClick.class);
+    private static int parseParameters(String[] args){
+        if(args.length == 2){
+            input_path = args[0];
+            output_path = args[1];
+            return 0;
+        }
+        else{
+            System.err.println("Usage: Each query needs 2 arguments.");
+            return 1;
+        }
     }
-    */
 
     private static DataSet<WebClick> getWebClickDataSet(ExecutionEnvironment env) {
         return env.readTextFile(web_clickstreams_path)
@@ -351,14 +340,14 @@ public class Query08 {
     private static DataSet<DateDim> getDateDimDataSet(ExecutionEnvironment env) {
         return env.readCsvFile(date_dim_path)
                 .fieldDelimiter("|")
-                .includeFields(date_dim_mask)
+                .includeFields(q08_date_dim_mask)
                 .tupleType(DateDim.class);
     }
 
     private static DataSet<WebPage> getWebPageDataSet(ExecutionEnvironment env) {
         return env.readCsvFile(web_page_path)
                 .fieldDelimiter("|")
-                .includeFields(web_page_mask)
+                .includeFields(q08_web_page_mask)
                 .ignoreInvalidLines()
                 .tupleType(WebPage.class);
     }
@@ -366,7 +355,7 @@ public class Query08 {
     private static DataSet<WebSales> getWebSalesDataSet(ExecutionEnvironment env) {
         return env.readCsvFile(web_sales_path)
                 .fieldDelimiter("|")
-                .includeFields(web_sales_mask)
+                .includeFields(q08_web_sales_mask)
                 .ignoreInvalidLines()
                 .tupleType(WebSales.class);
     }

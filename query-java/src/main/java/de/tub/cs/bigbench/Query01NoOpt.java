@@ -5,22 +5,21 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.flink.api.common.functions.*;
 import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.common.operators.base.JoinOperatorBase;
-import org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.aggregation.Aggregations;
-import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
-import org.apache.flink.configuration.Configuration;
 import org.apache.flink.core.fs.FileSystem;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.SortedSet;
+import java.util.TreeSet;
 
 /**
- * Created by gm on 23/11/15.
+ * Created by gm on 02/12/15.
  */
-public class Query01 {
+public class Query01NoOpt {
     public static String q01_store_sales_mask;
     public static String q01_items_mask;
 
@@ -56,24 +55,23 @@ public class Query01 {
 
         DataSet<Sale> salesNumber =
                 store_sales
-                        .join(items, JoinHint.BROADCAST_HASH_SECOND)
+                        .join(items)
                         .where(0)
                         .equalTo(0)
                         .with(new StoreSalesJoinItems());
 
-        DataSet<SortedSet<Long>> soldItemsPerTicket =
-                salesNumber
-                    .groupBy("ss_ticket_number")
-                    .reduceGroup(new DistinctReduce());
+        DataSet<SortedSet<Long>> soldItemsPerTicket = salesNumber
+                .groupBy("ss_ticket_number")
+                .reduceGroup(new DistinctReduce());
 
-        DataSet<Tuple3<Long, Long, Integer>> pairs =
-                soldItemsPerTicket
-                    .flatMap(new MakePairs())
-                    .groupBy(0, 1)
-                    .aggregate(Aggregations.SUM, 2)
-                    .filter(new FilterCounts())
-                    .sortPartition(2, Order.DESCENDING).setParallelism(1)
-                    .first(q01_limit);
+        DataSet<Tuple3<Long, Long, Integer>>
+                pairs = soldItemsPerTicket
+                .flatMap(new MakePairs())
+                .groupBy(0,1)
+                .aggregate(Aggregations.SUM, 2)
+                .filter(new FilterCounts())
+                .sortPartition(2, Order.DESCENDING).setParallelism(1)
+                .first(q01_limit);
 
         pairs.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
@@ -170,6 +168,18 @@ public class Query01 {
             // emit all unique i_item_sk.
             out.collect(uniqItems);
 
+        }
+    }
+
+    public static class PointAssigner
+            implements FlatJoinFunction<Tuple2<Integer, Long>, Tuple2<Integer, Long>, Tuple3<Long, Long, Integer>> {
+
+        @Override
+        public void join(Tuple2<Integer, Long> item_a, Tuple2<Integer, Long> item_b, org.apache.flink.util.Collector<Tuple3<Long, Long, Integer>> out) {
+
+            if (item_a.f1 < item_b.f1) {
+                out.collect(new Tuple3<Long, Long, Integer>(item_a.f1, item_b.f1, 1));
+            }
         }
     }
 

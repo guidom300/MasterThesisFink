@@ -8,20 +8,16 @@ import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.common.operators.base.JoinOperatorBase;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
-import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.java.tuple.Tuple5;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.util.Collector;
 
-import static org.apache.flink.api.common.operators.base.JoinOperatorBase.*;
-import static org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint.*;
-
 /**
  * Created by gm on 26/11/15.
  */
-public class Query13 {
+public class Query13NoOpt {
     //Config
     public static final Integer q13_YEAR = 2001;
     public static final Integer q13_LIMIT = 100;
@@ -71,7 +67,7 @@ public class Query13 {
 
         DataSet<TempTable> store =
                 store_sales
-                        .join(date_dim, BROADCAST_HASH_SECOND)
+                        .join(date_dim)
                         .where(0)
                         .equalTo(0)
                         .with(new JoinHelper())
@@ -80,7 +76,7 @@ public class Query13 {
 
         DataSet<TempTable> web =
                 web_sales
-                        .join(date_dim, BROADCAST_HASH_SECOND)
+                        .join(date_dim)
                         .where(0)
                         .equalTo(0)
                         .with(new JoinHelper())
@@ -94,7 +90,7 @@ public class Query13 {
                         .equalTo(0)
                         .with(new SSJoinWS())
                         .filter(new FilterTotals())
-                        .join(customers, BROADCAST_HASH_SECOND)
+                        .join(customers)
                         .where(0)
                         .equalTo(0)
                         .with(new WebStoreJoinCustomer())
@@ -121,17 +117,16 @@ public class Query13 {
         }
     }
 
-    @FunctionAnnotation.ForwardedFieldsFirst("f1->f0; f2")
-    @FunctionAnnotation.ForwardedFieldsSecond("f1")
+
     public static class JoinHelper
             implements JoinFunction<Sales, DateDim, Tuple3<Long, Integer, Double>> {
         @Override
         public Tuple3<Long, Integer, Double> join(Sales s, DateDim dd) throws Exception {
-            return new Tuple3<>(s.f1, dd.f1, s.f2);
+            return new Tuple3<>(s.getCustomer(), dd.getYear(), s.getNedPaid());
         }
     }
 
-    @FunctionAnnotation.ForwardedFields("f0")
+    // GroupReduceFunction that computes two sums.
     public static class groupReducerHelper
             implements GroupReduceFunction<Tuple3<Long, Integer, Double>, TempTable> {
         @Override
@@ -156,13 +151,12 @@ public class Query13 {
         }
     }
 
-    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2")
-    @FunctionAnnotation.ForwardedFieldsSecond("f1->f3; f2->f4")
+    // Join customers_store_sales - customers_web_sales
     public static class SSJoinWS
             implements JoinFunction<TempTable, TempTable, Tuple5<Long, Double, Double, Double, Double>> {
         @Override
         public Tuple5<Long, Double, Double, Double, Double> join(TempTable ss, TempTable ws) throws Exception {
-            return new Tuple5<>(ss.f0, ss.f1, ss.f2, ws.f1, ws.f2);
+            return new Tuple5<>(ss.getCustomer(), ss.getFirstYearTotal(), ss.getSecondYearTotal(), ws.getFirstYearTotal(), ws.getSecondYearTotal());
         }
     }
 
@@ -175,12 +169,11 @@ public class Query13 {
         }
     }
 
-    @FunctionAnnotation.ForwardedFieldsSecond("f0; f1; f2")
     public static class WebStoreJoinCustomer
             implements JoinFunction<Tuple5<Long, Double, Double, Double, Double>, Customer, Tuple5<Long, String, String, Double, Double>> {
         @Override
         public Tuple5<Long, String, String, Double, Double> join(Tuple5<Long, Double, Double, Double, Double> ws, Customer c) throws Exception {
-            return new Tuple5<>(c.f0, c.f1, c.f2, ws.f2 / ws.f1, ws.f4 / ws.f3);
+            return new Tuple5<>(c.getCustomer(), c.getFirstName(), c.getLastName(), ws.f2 / ws.f1, ws.f4 / ws.f3);
         }
     }
 
@@ -271,3 +264,4 @@ public class Query13 {
                 .tupleType(Customer.class);
     }
 }
+

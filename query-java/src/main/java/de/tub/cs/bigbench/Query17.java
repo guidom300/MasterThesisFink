@@ -4,13 +4,17 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 import org.apache.flink.api.common.functions.CrossFunction;
 import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.JoinFunction;
+import org.apache.flink.api.common.operators.base.JoinOperatorBase;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.aggregation.Aggregations;
+import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.core.fs.FileSystem;
 
 import java.util.Arrays;
+
+import static org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint.*;
 
 /**
  * Created by gm on 26/10/15.
@@ -48,7 +52,6 @@ public class Query17 {
 
         if(parseParameters(args) == 1)
             return;
-
 
         q17_store_sales_mask = config.getString("q17_store_sales_mask");
         q17_date_dim_mask = config.getString("q17_date_dim_mask");
@@ -88,69 +91,55 @@ public class Query17 {
                         .filter(new FilterPromotion());
 
         DataSet<Customer> cs = customers
-                .join(customers_address)
+                .join(customers_address, BROADCAST_HASH_SECOND)
                 .where(1)
                 .equalTo(0)
                 .with(new CustomersJoinCustomerAddress());
 
 
-        DataSet<Tuple1<Double>> promotional_sales =
+        DataSet<StoreSales> ss =
                 store_sales
-                        .join(date_dim)
+                        .join(date_dim, BROADCAST_HASH_SECOND)
                         .where(0)
                         .equalTo(0)
                         .with(new StoreSalesJoinDateDim())
-                        .join(items)
+                        .join(items, BROADCAST_HASH_SECOND)
                         .where(1)
                         .equalTo(0)
                         .with(new StoreSalesJoinItem())
-                        .join(store)
+                        .join(store, BROADCAST_HASH_SECOND) //ROWS 12(SF1)  120(SF100)
                         .where(3)
                         .equalTo(0)
                         .with(new StoreSalesJoinStore())
-                        .join(promotion_q1)
-                        .where(4)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinPromotionQ1())
                         .join(cs)
                         .where(2)
                         .equalTo(0)
-                        .with(new StoreSalesJoinCs())
-                        .aggregate(Aggregations.SUM, 5)
-                        .project(5);
+                        .with(new StoreSalesJoinCs());
+
+        DataSet<Tuple1<Double>> promotional_sales =
+                ss
+                    .join(promotion_q1, BROADCAST_HASH_SECOND)  //LESS THEN ROWS 300(SF1)  3707(SF100)
+                    .where(4)
+                    .equalTo(0)
+                    .with(new StoreSalesJoinPromotionQ1())
+                    .aggregate(Aggregations.SUM, 5)
+                    .project(5);
 
         DataSet<Tuple1<Double>> all_sales =
-                store_sales
-                        .join(date_dim) //JOIN date_dim dd ON ss.ss_sold_date_sk = dd.d_date_sk
-                        .where(0)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinDateDim())
-                        .join(items)
-                        .where(1)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinItem())
-                        .join(store)
-                        .where(3)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinStore())
-                        .join(promotion)
-                        .where(4)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinPromotionQ1())
-                        .join(cs)
-                        .where(2)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinCs())
-                        .aggregate(Aggregations.SUM, 5)
-                        .project(5);
+                ss
+                    .join(promotion, BROADCAST_HASH_SECOND)    //ROWS 300(SF1)  3707(SF100)
+                    .where(4)
+                    .equalTo(0)
+                    .with(new StoreSalesJoinPromotionQ1())
+                    .aggregate(Aggregations.SUM, 5)
+                    .project(5);
 
         DataSet<Tuple3<Double, Double, Double>> result =
-        promotional_sales
+            promotional_sales
                 .cross(all_sales)
                 .with(new ComputeRatio());
 
-        result
-                .writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
+        result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
         // execute program
         env.execute("Query17");
@@ -202,54 +191,59 @@ public class Query17 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1")
     public static class CustomersJoinCustomerAddress implements JoinFunction<Customer, CustomerAddress, Customer> {
         @Override
         public Customer join(Customer c, CustomerAddress ca) throws Exception {
-            return new Customer(c.getCustomer(), c.getAddress());
+            return new Customer(c.f0, c.f1);
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
     public static class StoreSalesJoinDateDim
             implements JoinFunction<StoreSales, DateDim, StoreSales>{
 
         @Override
         public StoreSales join(StoreSales ss, DateDim dd) throws Exception {
-            return new StoreSales(ss.getDate(), ss.getItem(), ss.getCustomer(), ss.getStore(), ss.getPromo(), ss.getPrice());
+            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
         }
     }
 
-
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
     public static class StoreSalesJoinItem
             implements JoinFunction<StoreSales, Item, StoreSales>{
 
         @Override
         public StoreSales join(StoreSales ss, Item i) throws Exception {
-            return new StoreSales(ss.getDate(), ss.getItem(), ss.getCustomer(), ss.getStore(), ss.getPromo(), ss.getPrice());
+            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
     public static class StoreSalesJoinStore
             implements JoinFunction<StoreSales, Store, StoreSales>{
 
         @Override
         public StoreSales join(StoreSales ss, Store s) throws Exception {
-            return new StoreSales(ss.getDate(), ss.getItem(), ss.getCustomer(), ss.getStore(), ss.getPromo(), ss.getPrice());
+            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
     public static class StoreSalesJoinPromotionQ1
             implements JoinFunction<StoreSales, Promotion, StoreSales>{
         @Override
         public StoreSales join(StoreSales ss, Promotion p) throws Exception {
-            return new StoreSales(ss.getDate(), ss.getItem(), ss.getCustomer(), ss.getStore(), ss.getPromo(), ss.getPrice());
+            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
     public static class StoreSalesJoinCs
             implements JoinFunction<StoreSales, Customer, StoreSales>{
         @Override
         public StoreSales join(StoreSales ss, Customer c) throws Exception {
-            return new StoreSales(ss.getDate(), ss.getItem(), ss.getCustomer(), ss.getStore(), ss.getPromo(), ss.getPrice());
+            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
         }
     }
 
@@ -403,5 +397,4 @@ public class Query17 {
                 .tupleType(CustomerAddress.class)
                 .filter(new FilterCustomerAddress());
     }
-
 }

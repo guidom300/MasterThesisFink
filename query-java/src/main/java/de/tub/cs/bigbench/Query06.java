@@ -5,11 +5,16 @@ import org.apache.flink.api.common.functions.FilterFunction;
 import org.apache.flink.api.common.functions.GroupReduceFunction;
 import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.common.operators.Order;
+import org.apache.flink.api.common.operators.base.JoinOperatorBase;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
+import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.util.Collector;
+
+import static org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint.*;
+import static org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint.BROADCAST_HASH_SECOND;
 
 /**
  * Created by gm on 25/11/15.
@@ -69,7 +74,7 @@ public class Query06 {
 
         DataSet<Tuple3<Long, Double, Double>> customer_store_sales =
                 store_sales
-                        .join(date_dim)
+                        .join(date_dim, BROADCAST_HASH_SECOND)
                         .where(0)
                         .equalTo(0)
                         .with(new JoinHelper())
@@ -78,7 +83,7 @@ public class Query06 {
 
         DataSet<Tuple3<Long, Double, Double>> customer_web_sales =
                 web_sales
-                        .join(date_dim)
+                        .join(date_dim, BROADCAST_HASH_SECOND)
                         .where(0)
                         .equalTo(0)
                         .with(new JoinHelper())
@@ -91,12 +96,12 @@ public class Query06 {
 
         DataSet<Tuple8<Double, Long, String, String, String, String, String, String>> results =
                 customer_store_sales
-                        .join(customer_web_sales)
+                        .join(customer_web_sales, BROADCAST_HASH_FIRST)
                         .where(0)
                         .equalTo(0)
                         .with(new SSJoinWS())
                         .filter(new FilterTotals())
-                        .join(customers)
+                        .join(customers, BROADCAST_HASH_FIRST)
                         .where(0)
                         .equalTo(0)
                         .with(new WebStoreJoinCustomer())
@@ -128,11 +133,13 @@ public class Query06 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f1->f0; f2; f3; f4; f5")
+    @FunctionAnnotation.ForwardedFieldsSecond("f1")
     public static class JoinHelper
             implements JoinFunction<Sales, DateDim, Tuple6<Long, Integer, Double, Double, Double, Double>> {
         @Override
         public Tuple6<Long, Integer, Double, Double, Double, Double> join(Sales s, DateDim dd) throws Exception {
-            return new Tuple6<>(s.getCustomer(), dd.getYear(), s.getDiscount(), s.getSellerPrice(), s.getWhosale(), s.getListPrice());
+            return new Tuple6<>(s.f1, dd.f1, s.f2, s.f3, s.f4, s.f5);
         }
     }
 
@@ -161,7 +168,8 @@ public class Query06 {
         }
     }
 
-    // Join customers_store_sales - customers_web_sales
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2")
+    @FunctionAnnotation.ForwardedFieldsSecond("f1->f3; f2->f4")
     public static class SSJoinWS
             implements JoinFunction<Tuple3<Long, Double, Double>, Tuple3<Long, Double, Double>, Tuple5<Long, Double, Double, Double, Double>> {
         @Override
@@ -179,11 +187,12 @@ public class Query06 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsSecond("f0->f1; f1->f2; f2->f3; f3>f4; f4->f5; f5->f6; f6->f7")
     public static class WebStoreJoinCustomer
             implements JoinFunction<Tuple5<Long, Double, Double, Double, Double>, Customer, Tuple8<Double, Long, String, String, String, String, String, String>> {
         @Override
         public Tuple8<Double, Long, String, String, String, String, String, String> join(Tuple5<Long, Double, Double, Double, Double> ws, Customer c) throws Exception {
-            return new Tuple8<>(ws.f4 / ws. f3, c.getCustomer(), c.getFirstName(), c.getLastName(), c.getPreferedFlag(), c.getBirthCountry(), c.getLogin(), c.getEmail());
+            return new Tuple8<>(ws.f4 / ws. f3, c.f0, c.f1, c.f2, c.f3, c.f4, c.f5, c.f6);
         }
     }
 
@@ -217,9 +226,6 @@ public class Query06 {
         public String getLogin() { return this.f5; }
         public String getEmail() { return this.f6; }
     }
-
-
-
 
     // *************************************************************************
     //     UTIL METHODS

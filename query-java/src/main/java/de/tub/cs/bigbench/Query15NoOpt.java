@@ -9,21 +9,17 @@ import org.apache.flink.api.common.operators.Order;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.aggregation.Aggregations;
-import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.*;
 import org.apache.flink.core.fs.FileSystem;
 import org.apache.flink.util.Collector;
 
 import java.text.DateFormat;
-import java.text.DecimalFormat;
 import java.text.SimpleDateFormat;
 
-import static org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint.BROADCAST_HASH_SECOND;
-
 /**
- * Created by gm on 26/10/15.
+ * Created by gm on 02/12/15.
  */
-public class Query15 {
+public class Query15NoOpt {
     public static String q15_store_sales_mask;
     public static String q15_date_dim_mask;
     public static String q15_items_mask;
@@ -67,17 +63,18 @@ public class Query15 {
         DataSet<Tuple1<Long>> dd = date_dim.project(0);
 
         DataSet<Tuple3<Integer, Long, Double>> t =
-            store_sales
-                .join(dd, BROADCAST_HASH_SECOND)
-                    .where(0)
-                    .equalTo(0)
-                    .with(new StoreSalesLeftJoinDD())
-                    .join(items)
-                    .where(1)
-                    .equalTo(0)
-                    .with(new StoreSalesJoinItem());
+                store_sales
+                        .join(dd)
+                        .where(0)
+                        .equalTo(0)
+                        .with(new StoreSalesLeftJoinDD())
+                        .join(items)
+                        .where(1)       //store_sales -> ss_item_sk
+                        .equalTo(0)     //items -> i_item_sk
+                        .with(new StoreSalesJoinItem())
+                        .project(4, 0, 3);
 
-            t
+        t
                 .groupBy(0, 1)  //GROUP BY i.i_category_id, s.ss_sold_date_sk
                 .aggregate(Aggregations.SUM, 2)
                 .map(new Temp())
@@ -107,22 +104,10 @@ public class Query15 {
         }
     }
 
-    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3")
     public static class StoreSalesLeftJoinDD implements JoinFunction<StoreSales, Tuple1<Long>, StoreSales> {
         @Override
         public StoreSales join(StoreSales ss, Tuple1<Long> dd) throws Exception {
             return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3);
-        }
-    }
-
-    @FunctionAnnotation.ForwardedFieldsFirst("f0->f1; f3->f2")
-    @FunctionAnnotation.ForwardedFieldsSecond("f1->f0")
-    public static class StoreSalesJoinItem
-            implements JoinFunction<StoreSales, Item, Tuple3<Integer, Long, Double>>{
-
-        @Override
-        public Tuple3<Integer, Long, Double> join(StoreSales ss, Item i) throws Exception {
-            return new Tuple3<>(i.f1, ss.f0, ss.f3);
         }
     }
 
@@ -132,6 +117,15 @@ public class Query15 {
         @Override
         public boolean filter(StoreSales ss) throws Exception {
             return ss.getStore().equals((long) q15_store_sk);
+        }
+    }
+
+    public static class StoreSalesJoinItem
+            implements JoinFunction<StoreSales, Item, Tuple5<Long, Long, Long, Double, Integer>>{
+
+        @Override
+        public Tuple5<Long, Long, Long, Double, Integer> join(StoreSales ss, Item i) throws Exception {
+            return new Tuple5<>(ss.f0, ss.f1, ss.f2, ss.f3, i.f1);
         }
     }
 
