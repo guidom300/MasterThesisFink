@@ -78,7 +78,7 @@ public class Query15 {
                     .with(new StoreSalesJoinItem());
 
             t
-                .groupBy(0, 1)  //GROUP BY i.i_category_id, s.ss_sold_date_sk
+                .groupBy(0, 1)
                 .aggregate(Aggregations.SUM, 2)
                 .map(new Temp())
                 .groupBy(0)

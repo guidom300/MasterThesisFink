@@ -187,7 +187,7 @@ public class Query06 {
         }
     }
 
-    @FunctionAnnotation.ForwardedFieldsSecond("f0->f1; f1->f2; f2->f3; f3>f4; f4->f5; f5->f6; f6->f7")
+    @FunctionAnnotation.ForwardedFieldsSecond("f0->f1; f1->f2; f2->f3; f3->f4; f4->f5; f5->f6; f6->f7")
     public static class WebStoreJoinCustomer
             implements JoinFunction<Tuple5<Long, Double, Double, Double, Double>, Customer, Tuple8<Double, Long, String, String, String, String, String, String>> {
         @Override

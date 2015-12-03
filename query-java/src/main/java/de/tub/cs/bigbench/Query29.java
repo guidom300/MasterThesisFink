@@ -7,6 +7,7 @@ import org.apache.flink.api.common.functions.JoinFunction;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.aggregation.Aggregations;
+import org.apache.flink.api.java.functions.FunctionAnnotation;
 import org.apache.flink.api.java.tuple.Tuple2;
 import org.apache.flink.api.java.tuple.Tuple3;
 import org.apache.flink.api.common.operators.Order;
@@ -123,12 +124,14 @@ public class Query29 {
     //     DATA TRASFORMATIONS
     // *************************************************************************
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f1->f0")
+    @FunctionAnnotation.ForwardedFieldsSecond("f1")
     public static class WebSalesJoinItems
             implements JoinFunction<WebSales, Item, Order> {
 
         @Override
         public Order join(WebSales ws, Item i) throws Exception {
-            return new Order(ws.getOrderNumber(), i.getCategoryID());
+            return new Order(ws.f1, i.f1);
         }
     }
 
@@ -151,7 +154,6 @@ public class Query29 {
 
         }
     }
-
 
     public static class MakePairs implements FlatMapFunction<SortedSet<Integer>, Tuple3<Integer, Integer, Integer>>
     {
