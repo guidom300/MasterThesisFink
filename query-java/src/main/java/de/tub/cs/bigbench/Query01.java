@@ -54,7 +54,7 @@ public class Query01 {
         //items -> i_item_sk (Long) i_category_id (Integer)
         DataSet<Item> items = getItemDataSet(env);
 
-        DataSet<Sale> salesNumber =
+        DataSet<Tuple2<Long, Long>> salesNumber =
                 store_sales
                         .join(items, JoinHint.BROADCAST_HASH_SECOND)
                         .where(0)
@@ -63,7 +63,7 @@ public class Query01 {
 
         DataSet<SortedSet<Long>> soldItemsPerTicket =
                 salesNumber
-                    .groupBy("ss_ticket_number")
+                    .groupBy(0)
                     .reduceGroup(new DistinctReduce());
 
         DataSet<Tuple3<Long, Long, Integer>> pairs =
@@ -144,27 +144,30 @@ public class Query01 {
         }
     }
 
-    public static class StoreSalesJoinItems
-            implements JoinFunction<StoreSales, Item, Sale> {
+    @FunctionAnnotation.ForwardedFieldsFirst("f2->f0; f0->f1")
+    public static class StoreSalesJoinItems implements JoinFunction<StoreSales, Item, Tuple2<Long, Long>> {
+
+        private Tuple2<Long, Long> out = new Tuple2<>();
 
         @Override
-        public Sale join(StoreSales ss, Item i) throws Exception {
-            return new Sale(ss.getTicket(), ss.getItem());
+        public Tuple2<Long, Long> join(StoreSales ss, Item i) throws Exception {
+            out.f0 = ss.f2;
+            out.f1 = ss.f0;
+            return out;
         }
     }
 
-    public static class DistinctReduce implements GroupReduceFunction<Sale, SortedSet<Long>> {
+    public static class DistinctReduce implements GroupReduceFunction<Tuple2<Long, Long>, SortedSet<Long>> {
+
+        private SortedSet<Long> uniqItems = new TreeSet<Long>();
 
         @Override
-        public void reduce(Iterable<Sale> in, org.apache.flink.util.Collector<SortedSet<Long>> out) throws Exception {
-
-            SortedSet<Long> uniqItems = new TreeSet<Long>();
-            Long key = null;
+        public void reduce(Iterable<Tuple2<Long, Long>> in, org.apache.flink.util.Collector<SortedSet<Long>> out) throws Exception {
+            uniqItems.clear();
 
             // add all i_item_sk of the group to the set
-            for (Sale t : in) {
-                key = t.ss_ticket_number;
-                uniqItems.add(t.ss_item_sk);
+            for (Tuple2<Long, Long> t : in) {
+                uniqItems.add(t.f1);
             }
 
             // emit all unique i_item_sk.
@@ -182,13 +185,18 @@ public class Query01 {
 
     public static class MakePairs implements FlatMapFunction<SortedSet<Long>, Tuple3<Long, Long, Integer>>
     {
+        private Tuple3<Long, Long, Integer> tuple = new Tuple3<>();
+
         @Override
         public void flatMap(SortedSet<Long> longs, org.apache.flink.util.Collector<Tuple3<Long, Long, Integer>> out) throws Exception {
             for (Long item_a : longs) {
                 for (Long item_b : longs) {
                     if(item_a < item_b)
                     {
-                        out.collect(new Tuple3<Long, Long, Integer>(item_a, item_b, 1));
+                        tuple.f0 = item_a;
+                        tuple.f1 = item_b;
+                        tuple.f2 = 1;
+                        out.collect(tuple);
                     }
                 }
             }

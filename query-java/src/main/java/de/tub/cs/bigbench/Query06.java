@@ -129,7 +129,7 @@ public class Query06 {
     public static class FilterYear implements FilterFunction<DateDim> {
         @Override
         public boolean filter(DateDim dd) throws Exception {
-            return dd.getYear().equals(q06_YEAR) || dd.getYear().equals(q06_YEAR + 1);
+            return dd.f1.equals(q06_YEAR) || dd.f1.equals(q06_YEAR + 1);
         }
     }
 
@@ -137,15 +137,22 @@ public class Query06 {
     @FunctionAnnotation.ForwardedFieldsSecond("f1")
     public static class JoinHelper
             implements JoinFunction<Sales, DateDim, Tuple6<Long, Integer, Double, Double, Double, Double>> {
+
+        private Tuple6<Long, Integer, Double, Double, Double, Double> out = new Tuple6<>();
+
         @Override
         public Tuple6<Long, Integer, Double, Double, Double, Double> join(Sales s, DateDim dd) throws Exception {
-            return new Tuple6<>(s.f1, dd.f1, s.f2, s.f3, s.f4, s.f5);
+            out.f0 = s.f1; out.f1 = dd.f1; out.f2 = s.f2; out.f3 = s.f3; out.f4 = s.f4; out.f5 = s.f5;
+            return out;
         }
     }
 
     // GroupReduceFunction that computes two sums.
     public static class getCustomerSales
             implements GroupReduceFunction<Tuple6<Long, Integer, Double, Double, Double, Double>, Tuple3<Long, Double, Double>> {
+
+        private Tuple3<Long, Double, Double> tuple = new Tuple3<>();
+
         @Override
         public void reduce(Iterable<Tuple6<Long, Integer, Double, Double, Double, Double>> in, Collector<Tuple3<Long, Double, Double>> out) {
 
@@ -163,8 +170,12 @@ public class Query06 {
             }
 
             //HAVING first_year_total > 0
-            if(s_year1 > 0)
-                out.collect(new Tuple3<>(key, s_year1, s_year2));
+            if(s_year1 > 0) {
+                tuple.f0 = key;
+                tuple.f1 = s_year1;
+                tuple.f2 = s_year2;
+                out.collect(tuple);
+            }
         }
     }
 
@@ -172,9 +183,12 @@ public class Query06 {
     @FunctionAnnotation.ForwardedFieldsSecond("f1->f3; f2->f4")
     public static class SSJoinWS
             implements JoinFunction<Tuple3<Long, Double, Double>, Tuple3<Long, Double, Double>, Tuple5<Long, Double, Double, Double, Double>> {
+
+        private Tuple5<Long, Double, Double, Double, Double> out = new Tuple5<>();
         @Override
         public Tuple5<Long, Double, Double, Double, Double> join(Tuple3<Long, Double, Double> ss, Tuple3<Long, Double, Double> ws) throws Exception {
-            return new Tuple5<>(ss.f0, ss.f1, ss.f2, ws.f1, ws.f2);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 =ws.f1; out.f4 = ws.f2;
+            return out;
         }
     }
 
@@ -190,9 +204,13 @@ public class Query06 {
     @FunctionAnnotation.ForwardedFieldsSecond("f0->f1; f1->f2; f2->f3; f3->f4; f4->f5; f5->f6; f6->f7")
     public static class WebStoreJoinCustomer
             implements JoinFunction<Tuple5<Long, Double, Double, Double, Double>, Customer, Tuple8<Double, Long, String, String, String, String, String, String>> {
+
+        private Tuple8<Double, Long, String, String, String, String, String, String> out = new Tuple8<>();
+
         @Override
         public Tuple8<Double, Long, String, String, String, String, String, String> join(Tuple5<Long, Double, Double, Double, Double> ws, Customer c) throws Exception {
-            return new Tuple8<>(ws.f4 / ws. f3, c.f0, c.f1, c.f2, c.f3, c.f4, c.f5, c.f6);
+            out.f0 = ws.f4 / ws. f3; out.f1 = c.f0; out.f2 = c.f1; out.f3 = c.f2;  out.f4 = c.f3; out.f5 = c.f4; out.f6 = c.f5; out.f7 = c.f6;
+            return out;
         }
     }
 

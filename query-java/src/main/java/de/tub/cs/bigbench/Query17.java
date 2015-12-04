@@ -87,10 +87,11 @@ public class Query17 {
 
 
         DataSet<Promotion> promotion_q1 =
-                promotion
-                        .filter(new FilterPromotion());
+            promotion
+                .filter(new FilterPromotion());
 
-        DataSet<Customer> cs = customers
+        DataSet<Customer> cs =
+            customers
                 .join(customers_address, BROADCAST_HASH_SECOND)
                 .where(1)
                 .equalTo(0)
@@ -98,41 +99,41 @@ public class Query17 {
 
 
         DataSet<StoreSales> ss =
-                store_sales
-                        .join(date_dim, BROADCAST_HASH_SECOND)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinDateDim())
-                        .join(items, BROADCAST_HASH_SECOND)
-                        .where(1)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinItem())
-                        .join(store, BROADCAST_HASH_SECOND) //ROWS 12(SF1)  120(SF100)
-                        .where(3)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinStore())
-                        .join(cs)
-                        .where(2)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinCs());
+            store_sales
+                .join(date_dim, BROADCAST_HASH_SECOND)
+                .where(0)
+                .equalTo(0)
+                .with(new StoreSalesJoinDateDim())
+                .join(items, BROADCAST_HASH_SECOND)
+                .where(1)
+                .equalTo(0)
+                .with(new StoreSalesJoinItem())
+                .join(store, BROADCAST_HASH_SECOND) //ROWS 12(SF1)  120(SF100)
+                .where(3)
+                .equalTo(0)
+                .with(new StoreSalesJoinStore())
+                .join(cs)
+                .where(2)
+                .equalTo(0)
+                .with(new StoreSalesJoinCs());
 
         DataSet<Tuple1<Double>> promotional_sales =
-                ss
-                    .join(promotion_q1, BROADCAST_HASH_SECOND)  //LESS THEN ROWS 300(SF1)  3707(SF100)
-                    .where(4)
-                    .equalTo(0)
-                    .with(new StoreSalesJoinPromotionQ1())
-                    .aggregate(Aggregations.SUM, 5)
-                    .project(5);
+            ss
+                .join(promotion_q1, BROADCAST_HASH_SECOND)  //LESS THEN ROWS 300(SF1)  3707(SF100)
+                .where(4)
+                .equalTo(0)
+                .with(new StoreSalesJoinPromotionQ1())
+                .aggregate(Aggregations.SUM, 5)
+                .project(5);
 
         DataSet<Tuple1<Double>> all_sales =
-                ss
-                    .join(promotion, BROADCAST_HASH_SECOND)    //ROWS 300(SF1)  3707(SF100)
-                    .where(4)
-                    .equalTo(0)
-                    .with(new StoreSalesJoinPromotionQ1())
-                    .aggregate(Aggregations.SUM, 5)
-                    .project(5);
+            ss
+                .join(promotion, BROADCAST_HASH_SECOND)    //ROWS 300(SF1)  3707(SF100)
+                .where(4)
+                .equalTo(0)
+                .with(new StoreSalesJoinPromotionQ1())
+                .aggregate(Aggregations.SUM, 5)
+                .project(5);
 
         DataSet<Tuple3<Double, Double, Double>> result =
             promotional_sales
@@ -155,7 +156,7 @@ public class Query17 {
 
         @Override
         public boolean filter(DateDim dd) throws Exception {
-            return dd.getYear().equals(q17_year) && dd.getMonth().equals(q17_month) ;
+            return dd.f1.equals(q17_year) && dd.f2.equals(q17_month) ;
         }
     }
 
@@ -171,7 +172,7 @@ public class Query17 {
 
         @Override
         public boolean filter(Store s) throws Exception {
-            return s.getOffset().equals(q17_gmt_offset);
+            return s.f1.equals(q17_gmt_offset);
         }
     }
 
@@ -179,7 +180,7 @@ public class Query17 {
 
         @Override
         public boolean filter(Promotion p) throws Exception {
-            return p.getDMail().equals("Y") || p.getEMail().equals("Y") || p.getTv().equals("Y");
+            return p.f1.equals("Y") || p.f2.equals("Y") || p.f3.equals("Y");
         }
     }
 
@@ -193,66 +194,84 @@ public class Query17 {
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1")
     public static class CustomersJoinCustomerAddress implements JoinFunction<Customer, CustomerAddress, Customer> {
+
+        private Customer out = new Customer();
+
         @Override
         public Customer join(Customer c, CustomerAddress ca) throws Exception {
-            return new Customer(c.f0, c.f1);
+            out.f0 = c.f0; out.f1 = c.f1;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
-    public static class StoreSalesJoinDateDim
-            implements JoinFunction<StoreSales, DateDim, StoreSales>{
+    public static class StoreSalesJoinDateDim implements JoinFunction<StoreSales, DateDim, StoreSales>{
+
+        private StoreSales out = new StoreSales();
 
         @Override
         public StoreSales join(StoreSales ss, DateDim dd) throws Exception {
-            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 = ss.f3; out.f4 = ss.f4; out.f5 = ss.f5;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
-    public static class StoreSalesJoinItem
-            implements JoinFunction<StoreSales, Item, StoreSales>{
+    public static class StoreSalesJoinItem implements JoinFunction<StoreSales, Item, StoreSales>{
+
+        private StoreSales out = new StoreSales();
 
         @Override
         public StoreSales join(StoreSales ss, Item i) throws Exception {
-            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 = ss.f3; out.f4 = ss.f4; out.f5 = ss.f5;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
-    public static class StoreSalesJoinStore
-            implements JoinFunction<StoreSales, Store, StoreSales>{
+    public static class StoreSalesJoinStore implements JoinFunction<StoreSales, Store, StoreSales>{
+
+        private StoreSales out = new StoreSales();
 
         @Override
         public StoreSales join(StoreSales ss, Store s) throws Exception {
-            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 = ss.f3; out.f4 = ss.f4; out.f5 = ss.f5;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
-    public static class StoreSalesJoinPromotionQ1
-            implements JoinFunction<StoreSales, Promotion, StoreSales>{
+    public static class StoreSalesJoinPromotionQ1 implements JoinFunction<StoreSales, Promotion, StoreSales>{
+
+        private StoreSales out = new StoreSales();
+
         @Override
         public StoreSales join(StoreSales ss, Promotion p) throws Exception {
-            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 = ss.f3; out.f4 = ss.f4; out.f5 = ss.f5;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3; f4; f5")
-    public static class StoreSalesJoinCs
-            implements JoinFunction<StoreSales, Customer, StoreSales>{
+    public static class StoreSalesJoinCs implements JoinFunction<StoreSales, Customer, StoreSales>{
+
+        private StoreSales out = new StoreSales();
+
         @Override
         public StoreSales join(StoreSales ss, Customer c) throws Exception {
-            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3, ss.f4, ss.f5);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 = ss.f3; out.f4 = ss.f4; out.f5 = ss.f5;
+            return out;
         }
     }
 
-    public static class ComputeRatio
-            implements CrossFunction<Tuple1<Double>, Tuple1<Double>, Tuple3<Double, Double, Double>> {
+    public static class ComputeRatio implements CrossFunction<Tuple1<Double>, Tuple1<Double>, Tuple3<Double, Double, Double>> {
+
+        private Tuple3<Double, Double, Double> out = new Tuple3<>();
 
         @Override
         public Tuple3<Double, Double, Double> cross(Tuple1<Double> ps, Tuple1<Double> as) throws Exception {
-            return new Tuple3<>(ps.f0, as.f0, (ps.f0 / as.f0) * 100);
+            out.f0 = ps.f0; out.f1 = as.f0; out.f2 = (ps.f0 / as.f0) * 100;
+            return out;
         }
     }
 

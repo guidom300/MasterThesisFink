@@ -63,43 +63,43 @@ public class Query24 {
         DataSet<Sales> store_sales = getStoreSalesDataSet(env);
 
         DataSet<TempTable1> temp_table1 =
-                items
-                        .join(item_marketprices, JoinHint.BROADCAST_HASH_FIRST)
-                        .where(0)
-                        .equalTo(1)
-                        .with(new ItemsJoinMarketPrices())
-                        .filter(new PricesComparison())
-                        .map(new Computation())
-                        .sortPartition(0, Order.ASCENDING).setParallelism(1)
-                        .sortPartition(1, Order.ASCENDING).setParallelism(1)
-                        .sortPartition(3, Order.ASCENDING).setParallelism(1);
+            items
+                .join(item_marketprices, JoinHint.BROADCAST_HASH_FIRST)
+                .where(0)
+                .equalTo(1)
+                .with(new ItemsJoinMarketPrices())
+                .filter(new PricesComparison())
+                .map(new Computation())
+                .sortPartition(0, Order.ASCENDING).setParallelism(1)
+                .sortPartition(1, Order.ASCENDING).setParallelism(1)
+                .sortPartition(3, Order.ASCENDING).setParallelism(1);
 
         DataSet<TempTable2_3> ws =
-                web_sales
-                        .join(temp_table1)
-                        .where(1)
-                        .equalTo(0)
-                        .with(new SalesJoinTempTable1())
-                        .groupBy(0, 1, 2)
-                        .reduceGroup(new Reducer());
+            web_sales
+                .join(temp_table1)
+                .where(1)
+                .equalTo(0)
+                .with(new SalesJoinTempTable1())
+                .groupBy(0, 1, 2)
+                .reduceGroup(new Reducer());
 
         DataSet<TempTable2_3> ss =
-                store_sales
-                        .join(temp_table1)
-                        .where(1)
-                        .equalTo(0)
-                        .with(new SalesJoinTempTable1())
-                        .groupBy(0, 1, 2)
-                        .reduceGroup(new Reducer());
+            store_sales
+                .join(temp_table1)
+                .where(1)
+                .equalTo(0)
+                .with(new SalesJoinTempTable1())
+                .groupBy(0, 1, 2)
+                .reduceGroup(new Reducer());
 
         DataSet<Tuple2<Long, Double>> result =
-                ws
-                        .join(ss)
-                        .where(0, 1)
-                        .equalTo(0, 1)
-                        .with(new WSJoinSS())
-                        .groupBy(0)
-                        .reduceGroup(new CrossPriceComputation());
+            ws
+                .join(ss)
+                .where(0, 1)
+                .equalTo(0, 1)
+                .with(new WSJoinSS())
+                .groupBy(0)
+                .reduceGroup(new CrossPriceComputation());
 
         result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
@@ -115,16 +115,21 @@ public class Query24 {
 
         @Override
         public boolean filter(Item i) throws Exception {
-            return i.getItem().equals(q24_i_item_sk);
+            return i.f0.equals(q24_i_item_sk);
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1")
     @FunctionAnnotation.ForwardedFieldsSecond("f0->f2; f2->f3; f3->f4; f4->f5")
     public static class ItemsJoinMarketPrices implements JoinFunction<Item, MarketPrice, Tuple6<Long, Double, Long, Double, Long, Long>> {
+
+        private Tuple6<Long, Double, Long, Double, Long, Long> out = new Tuple6<>();
+
         @Override
         public Tuple6<Long, Double, Long, Double, Long, Long> join(Item item, MarketPrice marketPrice) throws Exception {
-            return new Tuple6<>(item.getItem(), item.getPrice(), marketPrice.getSk(),marketPrice.getCompPrice(), marketPrice.getStartDate(), marketPrice.getEndDate());
+            out.f0 = item.f0; out.f1 = item.f1; out.f2 = marketPrice.f0;
+            out.f3 = marketPrice.f2; out.f4 = marketPrice.f3; out.f5 = marketPrice.f4;
+            return out;
         }
     }
 
@@ -139,23 +144,36 @@ public class Query24 {
     @FunctionAnnotation.ForwardedFields("f0; f2->f1")
     public static class Computation implements MapFunction<Tuple6<Long, Double, Long, Double, Long, Long>, TempTable1> {
         //i_item_sk, (imp_competitor_price - i_current_price)/i_current_price AS price_change, imp_start_date, (imp_end_date - imp_start_date) AS no_days_comp_price
+
+        private TempTable1 out = new TempTable1();
+
         @Override
         public TempTable1 map(Tuple6<Long, Double, Long, Double, Long, Long> t) throws Exception {
-            return new TempTable1(t.f0, t.f2, (t.f3 - t.f1) / t.f1, t.f4, t.f5 - t.f4);
+            out.f0 = t.f0; out.f1 = t.f2;
+            out.f2 = (t.f3 - t.f1) / t.f1;
+            out.f3 =  t.f4; out.f4 = t.f5 - t.f4;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f1->f0; f0->f3; f2->f6")
     @FunctionAnnotation.ForwardedFieldsSecond("f1; f2; f3->f4; f4->f5")
     public static class SalesJoinTempTable1 implements JoinFunction<Sales, TempTable1, Tuple7<Long, Long, Double, Long, Long, Long, Integer>>{
+
+        private Tuple7<Long, Long, Double, Long, Long, Long, Integer> out = new Tuple7<>();
+
         @Override
         public Tuple7<Long, Long, Double, Long, Long, Long, Integer> join(Sales sales, TempTable1 temp1) throws Exception {
-            return new Tuple7<>(sales.f1, temp1.f1, temp1.f2, sales.f0, temp1.f3, temp1.f4, sales.f2);
+            out.f0 = sales.f1; out.f1 = temp1.f1; out.f2 = temp1.f2; out.f3 = sales.f0;
+            out.f4 = temp1.f3; out.f5 = temp1.f4; out.f6 = sales.f2;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFields("f0; f1; f2")
     public static class Reducer implements GroupReduceFunction<Tuple7<Long, Long, Double, Long, Long, Long, Integer>, TempTable2_3> {
+
+        private TempTable2_3 tuple = new TempTable2_3();
 
         @Override
         public void reduce(Iterable<Tuple7<Long, Long, Double, Long, Long, Long, Integer>> in, Collector<TempTable2_3> out) throws Exception {
@@ -174,7 +192,8 @@ public class Query24 {
                 if((curr.f3 >= curr.f4 - curr.f5) && (curr.f3 < curr.f4))
                     prev_quant += curr.f6;
             }
-            out.collect(new TempTable2_3(item_sk, imp_sk, price_change, current_quant, prev_quant));
+            tuple.f0 = item_sk; tuple.f1 = imp_sk; tuple.f2 = price_change; tuple.f3 = current_quant; tuple.f4 = prev_quant;
+            out.collect(tuple);
         }
     }
 
@@ -182,14 +201,21 @@ public class Query24 {
     @FunctionAnnotation.ForwardedFieldsSecond("f3; f4")
     public static class WSJoinSS
             implements JoinFunction<TempTable2_3, TempTable2_3, Tuple6<Long, Integer, Integer, Integer, Integer, Double>>{
+
+        private Tuple6<Long, Integer, Integer, Integer, Integer, Double> out = new Tuple6<>();
+
         @Override
         public Tuple6<Long, Integer, Integer, Integer, Integer, Double> join(TempTable2_3 ws, TempTable2_3 ss) throws Exception {
-            return new Tuple6<>(ws.f0, ws.f3, ws.f4, ss.f3, ss.f4, ws.f2);
+            out.f0 = ws.f0; out.f1 = ws.f3; out.f2 = ws.f4; out.f3 = ss.f3; out.f4 = ss.f4; out.f5 = ws.f2;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFields("f0")
     public static class CrossPriceComputation implements GroupReduceFunction<Tuple6<Long, Integer, Integer, Integer, Integer, Double>, Tuple2<Long, Double>> {
+
+        private Tuple2<Long, Double> tuple = new Tuple2<>();
+
         @Override
         public void reduce(Iterable<Tuple6<Long, Integer, Integer, Integer, Integer, Double>> in, Collector<Tuple2<Long, Double>> out) throws Exception {
             Long ws_item_sk = null;
@@ -201,7 +227,8 @@ public class Query24 {
                 price += (curr.f3 + curr.f1 - curr.f4 - curr.f2) / ((curr.f4 + curr.f2) * curr.f5);
                 count++;
             }
-            out.collect(new Tuple2<>(ws_item_sk, price / (double)count));
+            tuple.f0 = ws_item_sk; tuple.f1 = price / (double)count;
+            out.collect(tuple);
         }
     }
 

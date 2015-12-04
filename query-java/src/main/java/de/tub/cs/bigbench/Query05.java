@@ -107,9 +107,14 @@ public class Query05 {
     public static class CTJoinCDT
             implements JoinFunction<Customer, CustomerDemographics, Tuple3<Long, String, String>> {
 
+        private Tuple3<Long, String, String> out = new Tuple3<>();
+
         @Override
         public Tuple3<Long, String, String> join(Customer customer, CustomerDemographics customerDemographics) throws Exception {
-            return new Tuple3<>(customer.f0, customerDemographics.f1, customerDemographics.f2);
+            out.f0 = customer.f0;
+            out.f1 = customerDemographics.f1;
+            out.f2 = customerDemographics.f2;
+            return out;
         }
     }
 
@@ -117,43 +122,56 @@ public class Query05 {
     @FunctionAnnotation.ForwardedFieldsSecond("f1->f0")
     public static class ITJoinWS
             implements JoinFunction<Item, WebClickStream, Tuple3<Long, Integer, String>> {
+
+        private Tuple3<Long, Integer, String> out = new Tuple3<>();
+
         @Override
         public Tuple3<Long, Integer, String> join(Item it, WebClickStream wcs) throws Exception {
-            return new Tuple3<>(wcs.f1, it.f1, it.f2);
+            out.f0 = wcs.f1;
+            out.f1 = it.f1;
+            out.f2 = it.f2;
+            return out;
         }
     }
 
-    public static class ReduceClicks implements GroupReduceFunction<Tuple3<Long, Integer, String>,
-            TempTable> {
+    public static class ReduceClicks implements GroupReduceFunction<Tuple3<Long, Integer, String>, TempTable> {
+
+        private TempTable tmp = new TempTable();
+        private Integer[] integers = new Integer[8];
+
         @Override
         public void reduce(Iterable<Tuple3<Long, Integer, String>> in, Collector<TempTable> out) throws Exception {
             Long wcs_user_sk = null;
-            Integer[] integers = new Integer[8];
             Arrays.fill(integers, 0);
-            //    List<Integer> clicks = Arrays.asList(integers);
 
             for (Tuple3<Long, Integer, String> curr : in) {
                 wcs_user_sk = curr.f0;
                 if(curr.f2.equals(q05_i_category))
                     integers[0]++;
-                //    clicks.set(0, clicks.get(0) + 1);
                 if(curr.f1 < 8)
                     integers[curr.f1]++;
-                //    clicks.set(curr.f1, clicks.get(curr.f1) + 1);
             }
-            out.collect(new TempTable(wcs_user_sk, integers));
+            tmp.f0 = wcs_user_sk;
+            tmp.f1 = integers;
+            out.collect(tmp);
         }
     }
 
     public static class TTJoinCD
             implements JoinFunction<TempTable, Tuple3<Long, String, String>,
             Tuple10<Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>> {
+
+        private Tuple10<Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer> tuple =
+                new Tuple10<>();
+
         @Override
         public Tuple10<Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer, Integer>
         join(TempTable tt, Tuple3<Long, String, String> cd) throws Exception {
-            return new Tuple10<>(tt.getClicks()[0],(Arrays.asList(q05_cd_education_status_IN).contains(cd.f2))? 1 : 0,
-                    (cd.f1.equals(q05_cd_gender))? 1 : 0, tt.getClicks()[1], tt.getClicks()[2], tt.getClicks()[3],
-                    tt.getClicks()[4], tt.getClicks()[5], tt.getClicks()[6], tt.getClicks()[7]);
+            tuple.f0 = tt.getClicks()[0]; tuple.f1 = (Arrays.asList(q05_cd_education_status_IN).contains(cd.f2))? 1 : 0;
+            tuple.f2 = (cd.f1.equals(q05_cd_gender))? 1 : 0; tuple.f3 = tt.getClicks()[1];
+            tuple.f4 = tt.getClicks()[2]; tuple.f5 = tt.getClicks()[3]; tuple.f6 = tt.getClicks()[4]; tuple.f7 = tt.getClicks()[5];
+            tuple.f8 = tt.getClicks()[6]; tuple.f9 = tt.getClicks()[7];
+            return tuple;
         }
     }
 

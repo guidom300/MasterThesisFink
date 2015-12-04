@@ -98,20 +98,23 @@ public class Query15 {
     //Filter DateDim between startDate && endDate
     public static class FilterDateDim implements FilterFunction<DateDim> {
 
+        private DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
         @Override
         public boolean filter(DateDim dd) throws Exception {
-
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-            return !(format.parse(dd.getDate()).after(format.parse(endDate)) || format.parse(dd.getDate()).before(format.parse(startDate))) ;
+            return !(format.parse(dd.f1).after(format.parse(endDate)) || format.parse(dd.f1).before(format.parse(startDate))) ;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3")
     public static class StoreSalesLeftJoinDD implements JoinFunction<StoreSales, Tuple1<Long>, StoreSales> {
+
+        private StoreSales out = new StoreSales();
+
         @Override
         public StoreSales join(StoreSales ss, Tuple1<Long> dd) throws Exception {
-            return new StoreSales(ss.f0, ss.f1, ss.f2, ss.f3);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 = ss.f3;
+            return out;
         }
     }
 
@@ -120,31 +123,38 @@ public class Query15 {
     public static class StoreSalesJoinItem
             implements JoinFunction<StoreSales, Item, Tuple3<Integer, Long, Double>>{
 
+        private Tuple3<Integer, Long, Double> out = new Tuple3<>();
+
         @Override
         public Tuple3<Integer, Long, Double> join(StoreSales ss, Item i) throws Exception {
-            return new Tuple3<>(i.f1, ss.f0, ss.f3);
+            out.f0 = i.f1; out.f1 = ss.f0; out.f2 = ss.f3;
+            return out;
         }
     }
 
-    //Filter StoreSales on ss_store_sk
     public static class StoreFilter implements FilterFunction<StoreSales> {
 
         @Override
         public boolean filter(StoreSales ss) throws Exception {
-            return ss.getStore().equals((long) q15_store_sk);
+            return ss.f2.equals((long) q15_store_sk);
         }
     }
 
     public static class Temp implements MapFunction<Tuple3<Integer, Long, Double>, Tuple5<Integer, Long, Double, Double, Long>> {
+
+        private Tuple5<Integer, Long, Double, Double, Long> out = new Tuple5<>();
+
         @Override
         public Tuple5<Integer, Long, Double, Double, Long> map(Tuple3<Integer, Long, Double> t) throws Exception {
-            return new Tuple5<>(t.f0, t.f1, t.f2, t.f1 * t.f2, t.f1 * t.f1);
+            out.f0 = t.f0; out.f1 = t.f1; out.f2 = t.f2; out.f3 = t.f1 * t.f2; out.f4 = t.f1 * t.f1;
+            return out;
         }
     }
 
     public static class Reducer implements GroupReduceFunction<Tuple5<Integer, Long, Double, Double, Long>, Tuple3<Integer, Double, Double>> {
-        //((count(x) * SUM(xy) - SUM(x) * SUM(y)) / (count(x) * SUM(xx) - SUM(x) * SUM(x)) ) AS slope,
-        //(SUM(y) - ((count(x) * SUM(xy) - SUM(x) * SUM(y)) / (count(x) * SUM(xx) - SUM(x)*SUM(x)) ) * SUM(x)) / count(x)
+
+        private Tuple3<Integer, Double, Double> tuple = new Tuple3<>();
+
         @Override
         public void reduce(Iterable<Tuple5<Integer, Long, Double, Double, Long>> in, Collector<Tuple3<Integer, Double, Double>> out) throws Exception {
             Integer cat = null;
@@ -162,8 +172,9 @@ public class Query15 {
                 sum_xx += curr.f4;
                 count_x++;
             }
-            out.collect(new Tuple3<>(cat, ((count_x * sum_xy - sum_x * sum_y) / (count_x * sum_xx - sum_x * sum_x) ),
-                    (sum_y - ((count_x * sum_xy - sum_x * sum_y) / (count_x * sum_xx - sum_x * sum_x) ) * sum_x) / count_x));
+            tuple.f0 = cat; tuple.f1 = ((count_x * sum_xy - sum_x * sum_y) / (count_x * sum_xx - sum_x * sum_x));
+            tuple.f2 = (sum_y - ((count_x * sum_xy - sum_x * sum_y) / (count_x * sum_xx - sum_x * sum_x) ) * sum_x) / count_x;
+            out.collect(tuple);
         }
     }
 

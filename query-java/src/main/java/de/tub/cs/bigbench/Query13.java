@@ -70,44 +70,43 @@ public class Query13 {
         DataSet<Customer> customers = getCustomersDataSet(env);
 
         DataSet<TempTable> store =
-                store_sales
-                        .join(date_dim, BROADCAST_HASH_SECOND)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new JoinHelper())
-                        .groupBy(0)
-                        .reduceGroup(new groupReducerHelper());
+            store_sales
+                .join(date_dim, BROADCAST_HASH_SECOND)
+                .where(0)
+                .equalTo(0)
+                .with(new JoinHelper())
+                .groupBy(0)
+                .reduceGroup(new groupReducerHelper());
 
         DataSet<TempTable> web =
-                web_sales
-                        .join(date_dim, BROADCAST_HASH_SECOND)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new JoinHelper())
-                        .groupBy(0)
-                        .reduceGroup(new groupReducerHelper());
+            web_sales
+                .join(date_dim, BROADCAST_HASH_SECOND)
+                .where(0)
+                .equalTo(0)
+                .with(new JoinHelper())
+                .groupBy(0)
+                .reduceGroup(new groupReducerHelper());
 
         DataSet<Tuple5<Long, String, String, Double, Double>> results =
-                store
-                        .join(web)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new SSJoinWS())
-                        .filter(new FilterTotals())
-                        .join(customers, BROADCAST_HASH_SECOND)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new WebStoreJoinCustomer())
-                        .sortPartition(4, Order.DESCENDING).setParallelism(1)
-                        .sortPartition(0, Order.ASCENDING).setParallelism(1)
-                        .sortPartition(1, Order.ASCENDING).setParallelism(1)
-                        .sortPartition(2, Order.ASCENDING).setParallelism(1)
-                        .first(q13_LIMIT);
+            store
+                .join(web)
+                .where(0)
+                .equalTo(0)
+                .with(new SSJoinWS())
+                .filter(new FilterTotals())
+                .join(customers, BROADCAST_HASH_SECOND)
+                .where(0)
+                .equalTo(0)
+                .with(new WebStoreJoinCustomer())
+                .sortPartition(4, Order.DESCENDING).setParallelism(1)
+                .sortPartition(0, Order.ASCENDING).setParallelism(1)
+                .sortPartition(1, Order.ASCENDING).setParallelism(1)
+                .sortPartition(2, Order.ASCENDING).setParallelism(1)
+                .first(q13_LIMIT);
 
         results.writeAsCsv(output_path, FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
         env.execute("Query13");
-
     }
 
     // *************************************************************************
@@ -117,7 +116,7 @@ public class Query13 {
     public static class FilterYear implements FilterFunction<DateDim> {
         @Override
         public boolean filter(DateDim dd) throws Exception {
-            return dd.getYear().equals(q13_YEAR) || dd.getYear().equals(q13_YEAR + 1);
+            return dd.f1.equals(q13_YEAR) || dd.f1.equals(q13_YEAR + 1);
         }
     }
 
@@ -125,15 +124,22 @@ public class Query13 {
     @FunctionAnnotation.ForwardedFieldsSecond("f1")
     public static class JoinHelper
             implements JoinFunction<Sales, DateDim, Tuple3<Long, Integer, Double>> {
+
+        private Tuple3<Long, Integer, Double> out = new Tuple3<>();
+
         @Override
         public Tuple3<Long, Integer, Double> join(Sales s, DateDim dd) throws Exception {
-            return new Tuple3<>(s.f1, dd.f1, s.f2);
+            out.f0 = s.f1; out.f1 = dd.f1; out.f2 = s.f2;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFields("f0")
     public static class groupReducerHelper
             implements GroupReduceFunction<Tuple3<Long, Integer, Double>, TempTable> {
+
+        private TempTable tmp = new TempTable();
+
         @Override
         public void reduce(Iterable<Tuple3<Long, Integer, Double>> in, Collector<TempTable> out) {
 
@@ -151,8 +157,10 @@ public class Query13 {
             }
 
             //HAVING first_year_total > 0
-            if(s_year1 > 0.0)
-                out.collect(new TempTable(key, s_year1, s_year2));
+            if(s_year1 > 0.0) {
+                tmp.f0 = key; tmp.f1 = s_year1; tmp.f2 = s_year2;
+                out.collect(tmp);
+            }
         }
     }
 
@@ -160,15 +168,19 @@ public class Query13 {
     @FunctionAnnotation.ForwardedFieldsSecond("f1->f3; f2->f4")
     public static class SSJoinWS
             implements JoinFunction<TempTable, TempTable, Tuple5<Long, Double, Double, Double, Double>> {
+
+        private Tuple5<Long, Double, Double, Double, Double> out = new Tuple5<>();
+
         @Override
         public Tuple5<Long, Double, Double, Double, Double> join(TempTable ss, TempTable ws) throws Exception {
-            return new Tuple5<>(ss.f0, ss.f1, ss.f2, ws.f1, ws.f2);
+            out.f0 = ss.f0; out.f1 = ss.f1; out.f2 = ss.f2; out.f3 = ws.f1; out.f4 = ws.f2;
+            return out;
         }
     }
 
     // Filter Year
     public static class FilterTotals implements FilterFunction<Tuple5<Long, Double, Double, Double, Double>> {
-        //(web.second_year_total / web.first_year_total)  >  (store.second_year_total / store.first_year_total)
+
         @Override
         public boolean filter(Tuple5<Long, Double, Double, Double, Double> row) throws Exception {
             return (row.f4 / row.f3) > (row.f2 / row.f1);
@@ -178,9 +190,13 @@ public class Query13 {
     @FunctionAnnotation.ForwardedFieldsSecond("f0; f1; f2")
     public static class WebStoreJoinCustomer
             implements JoinFunction<Tuple5<Long, Double, Double, Double, Double>, Customer, Tuple5<Long, String, String, Double, Double>> {
+
+        private Tuple5<Long, String, String, Double, Double> out = new Tuple5<>();
+
         @Override
         public Tuple5<Long, String, String, Double, Double> join(Tuple5<Long, Double, Double, Double, Double> ws, Customer c) throws Exception {
-            return new Tuple5<>(c.f0, c.f1, c.f2, ws.f2 / ws.f1, ws.f4 / ws.f3);
+            out.f0 = c.f0; out.f1 = c.f1; out.f2 = c.f2; out.f3 = ws.f2 / ws.f1; out.f4 = ws.f4 / ws.f3;
+            return out;
         }
     }
 

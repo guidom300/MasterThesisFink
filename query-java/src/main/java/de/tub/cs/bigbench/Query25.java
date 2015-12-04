@@ -67,32 +67,32 @@ public class Query25 {
         DataSet<Sales> web_sales = getWebSalesDataSet(env);
 
         DataSet<Tuple4<Long, Integer, Long, Double>> result_temp_1 =
-                store_sales
-                        .join(date_dim, JoinHint.REPARTITION_HASH_SECOND)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinDateDim())
-                        .groupBy(0)
-                        .reduceGroup(new GroupComputation());
+            store_sales
+                .join(date_dim, JoinHint.REPARTITION_HASH_SECOND)
+                .where(0)
+                .equalTo(0)
+                .with(new StoreSalesJoinDateDim())
+                .groupBy(0)
+                .reduceGroup(new GroupComputation());
 
         DataSet<Tuple4<Long, Integer, Long, Double>> result_temp_2 =
-                web_sales
-                        .join(date_dim, JoinHint.REPARTITION_HASH_SECOND)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new StoreSalesJoinDateDim())
-                        .groupBy(0)
-                        .reduceGroup(new GroupComputation());
+            web_sales
+                .join(date_dim, JoinHint.REPARTITION_HASH_SECOND)
+                .where(0)
+                .equalTo(0)
+                .with(new StoreSalesJoinDateDim())
+                .groupBy(0)
+                .reduceGroup(new GroupComputation());
 
         DataSet<Tuple4<Long, Integer, Long, Double>> result_temp =
-                result_temp_1
-                        .union(result_temp_2);
+            result_temp_1
+            .union(result_temp_2);
 
         DataSet<Tuple4<Long, Double, Double, Double>> result =
-                result_temp
-                        .groupBy(0)
-                        .reduceGroup(new Reducer())
-                        .sortPartition(0, Order.ASCENDING).setParallelism(1);
+            result_temp
+                .groupBy(0)
+                .reduceGroup(new Reducer())
+                .sortPartition(0, Order.ASCENDING).setParallelism(1);
 
         result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
@@ -107,31 +107,39 @@ public class Query25 {
     //Filter DateDim between startDate && endDate
     public static class FilterDateDim implements FilterFunction<DateDim> {
 
+        private DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
+
         @Override
         public boolean filter(DateDim dd) throws Exception {
 
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-            return format.parse(dd.getDate()).after(format.parse(q25_date));
+            return format.parse(dd.f1).after(format.parse(q25_date));
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f1->f0; f2->f1; f0->f2; f3")
     public static class StoreSalesJoinDateDim implements JoinFunction<Sales, DateDim, Tuple4<Long, Long, Long, Double>> {
+
+        private Tuple4<Long, Long, Long, Double> out = new Tuple4<>();
+
         @Override
         public Tuple4<Long, Long, Long, Double> join(Sales s, DateDim dd) throws Exception {
-            return new Tuple4<>(s.f1, s.f2, s.f0, s.f3);
+            out.f0 = s.f1; out.f1 = s.f2; out.f2 = s.f0; out.f3 = s.f3;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFields("f0")
     public static class GroupComputation implements GroupReduceFunction<Tuple4<Long, Long, Long, Double>,
             Tuple4<Long, Integer, Long, Double>> {
+
+        private Set<Long> uniqTickets = new HashSet<>();
+        private Tuple4<Long, Integer, Long, Double> tuple = new Tuple4<>();
+
         @Override
         public void reduce(Iterable<Tuple4<Long, Long, Long, Double>> in,
                            Collector<Tuple4<Long, Integer, Long, Double>> out) throws Exception {
             Long cid = null;
-            Set<Long> uniqTickets = new HashSet<>();
+            uniqTickets.clear();
             Long max_dateid = (long)0;
             Double sum_amount = 0.0;
 
@@ -142,14 +150,17 @@ public class Query25 {
                     max_dateid = curr.f2;
                 sum_amount += curr.f3;
             }
-            out.collect(new Tuple4<>(cid, uniqTickets.size(), max_dateid, sum_amount));
-
+            tuple.f0 = cid; tuple.f1 = uniqTickets.size(); tuple.f2 = max_dateid; tuple.f3 = sum_amount;
+            out.collect(tuple);
         }
     }
 
     @FunctionAnnotation.ForwardedFields("f0")
     public static class Reducer implements GroupReduceFunction<Tuple4<Long, Integer, Long, Double>,
             Tuple4<Long, Double, Double, Double>> {
+
+        private Tuple4<Long, Double, Double, Double> tuple = new Tuple4<>();
+
         @Override
         public void reduce(Iterable<Tuple4<Long, Integer, Long, Double>> in,
                            Collector<Tuple4<Long, Double, Double, Double>> out) throws Exception {
@@ -165,7 +176,9 @@ public class Query25 {
                 sum_frequency += curr.f1;
                 sum_amount += curr.f3;
             }
-            out.collect(new Tuple4<>(cid, ((37621 - max_most_recent_date) < 60)? 1.0 : 0.0, sum_frequency , sum_amount));
+            tuple.f0 = cid; tuple.f1 = ((37621 - max_most_recent_date) < 60)? 1.0 : 0.0;
+            tuple.f2 = sum_frequency; tuple.f3 = sum_amount;
+            out.collect(tuple);
         }
     }
 

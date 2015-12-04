@@ -62,43 +62,42 @@ public class Query11 {
         DataSet<WebSales> web_sales = getWebSalesDataSet(env);
 
         DataSet<Tuple3<Long, Integer, Double>> p =
-                product_reviews
-                        .map(new Ones())
-                        .groupBy(1)
-                        .aggregate(Aggregations.SUM, 2)
-                        .and(Aggregations.SUM, 0)
-                        .map(new GetP());
+            product_reviews
+                .map(new Ones())
+                .groupBy(1)
+                .aggregate(Aggregations.SUM, 2)
+                .and(Aggregations.SUM, 0)
+                .map(new GetP());
 
         DataSet<Tuple1<Long>> dd =
-                date_dim
-                        .filter(new FilterDateDim())
-                        .project(0);
+            date_dim
+                .filter(new FilterDateDim())
+                .project(0);
 
         DataSet<Tuple2<Long, Double>> s =
-                web_sales
-                        .joinWithTiny(dd)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new WsJoinDateDim())
-                        .groupBy(0)
-                        .aggregate(Aggregations.SUM, 1)
-                        .sortPartition(0, Order.ASCENDING).setParallelism(1);
+            web_sales
+                .joinWithTiny(dd)
+                .where(0)
+                .equalTo(0)
+                .with(new WsJoinDateDim())
+                .groupBy(0)
+                .aggregate(Aggregations.SUM, 1)
+                .sortPartition(0, Order.ASCENDING).setParallelism(1);
 
         DataSet<Tuple3<Integer, Integer, Double>> q11_review_stats_tmp =
-                p
-                        .joinWithTiny(s)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new PJoinS());
+            p
+                .joinWithTiny(s)
+                .where(0)
+                .equalTo(0)
+                .with(new PJoinS());
 
         DataSet<Tuple3<Integer, Double, Double>> means =
-                q11_review_stats_tmp
-                        .groupBy(0)
-                        .reduceGroup(new Reducer());
-
+            q11_review_stats_tmp
+                .groupBy(0)
+                .reduceGroup(new Reducer());
 
         DataSet<Tuple1<Double>> result =
-        q11_review_stats_tmp
+            q11_review_stats_tmp
                 .joinWithTiny(means)
                 .where(0)
                 .equalTo(0)
@@ -115,44 +114,53 @@ public class Query11 {
 
     }
 
-
     // *************************************************************************
     //     DATA TRASFORMATIONS
     // *************************************************************************
 
-    // Filter DateDim between startDate && endDate
     public static class FilterDateDim implements FilterFunction<DateDim> {
+
+        private DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
 
         @Override
         public boolean filter(DateDim dd) throws Exception {
-
-            DateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-
-            return !(format.parse(dd.getDate()).after(format.parse(endDate)) || format.parse(dd.getDate()).before(format.parse(startDate))) ;
+            return !(format.parse(dd.f1).after(format.parse(endDate)) || format.parse(dd.f1).before(format.parse(startDate))) ;
         }
     }
 
-    @FunctionAnnotation.ReadFields("f0; f1")
+    @FunctionAnnotation.ForwardedFields("f0; f1")
     public static class Ones implements MapFunction<ProdReviews, Tuple3<Integer, Long, Integer>> {
+
+        private Tuple3<Integer, Long, Integer> out = new Tuple3<>();
+
         @Override
         public Tuple3<Integer, Long, Integer> map(ProdReviews pr) throws Exception {
-            return new Tuple3<>(pr.f0, pr.f1, 1);
+            out.f0 = pr.f0; out.f1 = pr.f1; out.f2 = 1;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFields("f1->f0")
     public static class GetP implements MapFunction<Tuple3<Integer, Long, Integer>, Tuple3<Long, Integer, Double>> {
+
+        private Tuple3<Long, Integer, Double> out = new Tuple3<>();
+
         @Override
         public Tuple3<Long, Integer, Double> map(Tuple3<Integer, Long, Integer> row) throws Exception {
-            return new Tuple3<>(row.f1, row.f2, ((double)row.f0 / row.f2));
+            out.f0 = row.f1; out.f1 = row.f2; out.f2 = (double)row.f0 / row.f2;
+            return out;
         }
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f1->f0; f2->f1")
     public static class WsJoinDateDim implements JoinFunction<WebSales, Tuple1<Long>, Tuple2<Long, Double>>{
+
+        private Tuple2<Long, Double> out = new Tuple2<>();
+
         @Override
         public Tuple2<Long, Double> join(WebSales ws, Tuple1<Long> dd) throws Exception {
-            return new Tuple2<>(ws.f1, ws.f2);
+            out.f0 = ws.f1; out.f1 = ws.f2;
+            return out;
         }
     }
 
@@ -160,13 +168,18 @@ public class Query11 {
     public static class PJoinS
             implements JoinFunction<Tuple3<Long, Integer, Double>, Tuple2<Long, Double>, Tuple3<Integer, Integer, Double>>{
 
+        private Tuple3<Integer, Integer, Double> out = new Tuple3<>();
+
         @Override
         public Tuple3<Integer, Integer, Double> join(Tuple3<Long, Integer, Double> p, Tuple2<Long, Double> s) throws Exception {
-            return new Tuple3<>(1, p.f1, p.f2);
+            out.f0 = 1; out.f1 = p.f1; out.f2 = p.f2;
+            return out;
         }
     }
 
     public static class Reducer implements GroupReduceFunction<Tuple3<Integer, Integer, Double>, Tuple3<Integer, Double, Double>> {
+
+        private Tuple3<Integer, Double, Double> tuple = new Tuple3<>();
 
         @Override
         public void reduce(Iterable<Tuple3<Integer, Integer, Double>> rows, Collector<Tuple3<Integer, Double, Double>> out) throws Exception {
@@ -179,22 +192,32 @@ public class Query11 {
                 sum_y += curr.f2;
                 count++;
             }
-            out.collect(new Tuple3<>(1, sum_x / (double) count, sum_y / (double) count));
+            tuple.f0 = 1; tuple.f1 = sum_x / (double) count; tuple.f2 = sum_y / (double) count;
+            out.collect(tuple);
         }
     }
 
     public static class CorrJoinMeans implements JoinFunction<Tuple3<Integer, Integer, Double>, Tuple3<Integer, Double, Double>, Tuple3<Double, Double, Double>>{
 
+        private Tuple3<Double, Double, Double> tuple = new Tuple3<>();
+
         @Override
         public Tuple3<Double, Double, Double> join(Tuple3<Integer, Integer, Double> corr, Tuple3<Integer, Double, Double> means) throws Exception {
-            return new Tuple3<>(((double)corr.f1 - means.f1) * (corr.f2 - means.f2), ((double)corr.f1 - means.f1) * ((double)corr.f1 - means.f1), (corr.f2 - means.f2) * (corr.f2 - means.f2));
+            tuple.f0 = ((double)corr.f1 - means.f1) * (corr.f2 - means.f2);
+            tuple.f1 = ((double)corr.f1 - means.f1) * ((double)corr.f1 - means.f1);
+            tuple.f2 = (corr.f2 - means.f2) * (corr.f2 - means.f2);
+            return tuple;
         }
     }
 
     public static class Correlation implements MapFunction<Tuple3<Double, Double, Double>, Tuple1<Double>> {
+
+        private Tuple1<Double> out = new Tuple1<>();
+
         @Override
         public Tuple1<Double> map(Tuple3<Double, Double, Double> row) throws Exception {
-            return new Tuple1<>(row.f0 / Math.sqrt(row.f1 * row.f2));
+            out.f0 = row.f0 / Math.sqrt(row.f1 * row.f2);
+            return out;
         }
     }
 
