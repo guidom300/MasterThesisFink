@@ -33,6 +33,7 @@ public class Query25 {
 
     public static String input_path;
     public static String output_path;
+    public static String temp_path;
     public static String store_sales_path;
     public static String date_dim_path;
     public static String web_sales_path;
@@ -66,35 +67,35 @@ public class Query25 {
         //web_sales -> ws.ws_sold_date_sk (Long), ws_bill_customer_sk (Long), ws_order_number (Long), ws_net_paid (Double)
         DataSet<Sales> web_sales = getWebSalesDataSet(env);
 
-        DataSet<Tuple4<Long, Integer, Long, Double>> result_temp_1 =
-            store_sales
-                .join(date_dim, JoinHint.REPARTITION_HASH_SECOND)
-                .where(0)
-                .equalTo(0)
-                .with(new StoreSalesJoinDateDim())
-                .groupBy(0)
-                .reduceGroup(new GroupComputation());
+        DataSet<Tuple4<Long, Long, Long, Double>> result_temp_1 =
+                store_sales
+                        .join(date_dim, JoinHint.BROADCAST_HASH_SECOND)
+                        .where(0)
+                        .equalTo(0)
+                        .with(new StoreSalesJoinDateDim())
+                        .groupBy(0, 1, 2)
+                        .aggregate(Aggregations.SUM, 3);
 
-        DataSet<Tuple4<Long, Integer, Long, Double>> result_temp_2 =
-            web_sales
-                .join(date_dim, JoinHint.REPARTITION_HASH_SECOND)
-                .where(0)
-                .equalTo(0)
-                .with(new StoreSalesJoinDateDim())
-                .groupBy(0)
-                .reduceGroup(new GroupComputation());
+        DataSet<Tuple4<Long, Long, Long, Double>> result_temp_2 =
+                web_sales
+                        .join(date_dim, JoinHint.BROADCAST_HASH_SECOND)
+                        .where(0)
+                        .equalTo(0)
+                        .with(new StoreSalesJoinDateDim())
+                        .groupBy(0, 1, 2)
+                        .aggregate(Aggregations.SUM, 3);
 
-        DataSet<Tuple4<Long, Integer, Long, Double>> result_temp =
-            result_temp_1
-            .union(result_temp_2);
+        DataSet<Tuple4<Long, Long, Long, Double>> result_temp =
+                result_temp_1
+                        .union(result_temp_2);
 
         DataSet<Tuple4<Long, Double, Double, Double>> result =
-            result_temp
-                .groupBy(0)
-                .reduceGroup(new Reducer())
-                .sortPartition(0, Order.ASCENDING).setParallelism(1);
+                result_temp
+                        .groupBy(0)
+                        .reduceGroup(new Reducer())
+                        .sortPartition(0, Order.ASCENDING).setParallelism(1);
 
-        result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
+        result.writeAsCsv(temp_path, "\n", " ", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
         env.execute("Query25");
     }
@@ -156,28 +157,28 @@ public class Query25 {
     }
 
     @FunctionAnnotation.ForwardedFields("f0")
-    public static class Reducer implements GroupReduceFunction<Tuple4<Long, Integer, Long, Double>,
+    public static class Reducer implements GroupReduceFunction<Tuple4<Long, Long, Long, Double>,
             Tuple4<Long, Double, Double, Double>> {
 
         private Tuple4<Long, Double, Double, Double> tuple = new Tuple4<>();
 
         @Override
-        public void reduce(Iterable<Tuple4<Long, Integer, Long, Double>> in,
+        public void reduce(Iterable<Tuple4<Long, Long, Long, Double>> in,
                            Collector<Tuple4<Long, Double, Double, Double>> out) throws Exception {
             Long cid = null;
             Long max_most_recent_date = (long)0;
-            Double sum_frequency = 0.0;
+            Double count_oid = 0.0;
             Double sum_amount = 0.0;
 
-            for (Tuple4<Long, Integer, Long, Double> curr : in) {
+            for (Tuple4<Long, Long, Long, Double> curr : in) {
                 cid = curr.f0;
                 if(curr.f2 > max_most_recent_date)
                     max_most_recent_date = curr.f2;
-                sum_frequency += curr.f1;
+                count_oid++;
                 sum_amount += curr.f3;
             }
             tuple.f0 = cid; tuple.f1 = ((37621 - max_most_recent_date) < 60)? 1.0 : 0.0;
-            tuple.f2 = sum_frequency; tuple.f3 = sum_amount;
+            tuple.f2 = count_oid; tuple.f3 = round(sum_amount, 2);
             out.collect(tuple);
         }
     }
@@ -214,10 +215,20 @@ public class Query25 {
     //     UTIL METHODS
     // *************************************************************************
 
+    public static double round(double value, int places) {
+        if (places < 0) throw new IllegalArgumentException();
+
+        long factor = (long) Math.pow(10, places);
+        value = value * factor;
+        long tmp = Math.round(value);
+        return (double) tmp / factor;
+    }
+
     private static int parseParameters(String[] args){
-        if(args.length == 2){
+        if(args.length == 3){
             input_path = args[0];
             output_path = args[1];
+            temp_path = args[2];
             return 0;
         }
         else{

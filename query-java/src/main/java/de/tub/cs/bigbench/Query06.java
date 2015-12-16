@@ -250,7 +250,7 @@ public class Query06 {
     // *************************************************************************
 
     private static int parseParameters(String[] args){
-        if(args.length == 2){
+        if(args.length == 3){
             input_path = args[0];
             output_path = args[1];
             return 0;

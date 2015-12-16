@@ -28,6 +28,7 @@ public class Query05 {
     //Mapping
     public static String input_path;
     public static String output_path;
+    public static String temp_path;
     public static String items_path;
     public static String customers_path;
     public static String customers_demographics_path;
@@ -92,7 +93,7 @@ public class Query05 {
                         .equalTo(0)
                         .with(new TTJoinCD());
 
-        result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
+        result.writeAsCsv(temp_path, "\n", ",", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
         env.execute("Query 05");
 
@@ -246,9 +247,10 @@ public class Query05 {
     // *************************************************************************
 
     private static int parseParameters(String[] args){
-        if(args.length == 2){
+        if(args.length == 3){
             input_path = args[0];
             output_path = args[1];
+            temp_path = args[2];
             return 0;
         }
         else{
