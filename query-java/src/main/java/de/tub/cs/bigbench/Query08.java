@@ -187,28 +187,26 @@ public class Query08 {
     public static class FilterSalesReview implements GroupReduceFunction<Tuple4<Long, Long, String, String>, Tuple1<Long>> {
 
         private Tuple1<Long> tuple = new Tuple1<>();
+        private Tuple3<Long, Long, Long> cache = new Tuple3<>(-1L, -1L, null);
 
         @Override
         public void reduce(Iterable<Tuple4<Long, Long, String, String>> in, Collector<Tuple1<Long>> out) throws Exception {
-            Long current_key = (long)-1;
-            Long last_review_date = (long)-1;
-            Long last_sales_sk = null;
 
             for (Tuple4<Long, Long, String, String> curr : in) {
-                if (!(current_key.equals(curr.f0))) {
-                    current_key = curr.f0;
-                    last_review_date = (long) -1;
-                    last_sales_sk = null;
+                if (!(cache.f0.equals(curr.f0))) {
+                    cache.setField(curr.f0, 0);
+                    cache.setField(-1L, 1);
+                    cache.setField(null, 2);
                 }
                 Long tstamp_inSec = (long) curr.f1;
                 if (curr.f3.equals(web_page_type_filter)) {
-                    last_review_date = tstamp_inSec;
+                    cache.setField(tstamp_inSec, 1);
                 } else {
                     if (!curr.f2.equals("")) {    //wcs_sales_sk IS NOT NULL
-                        if ((last_review_date > 0) && ((tstamp_inSec - last_review_date) <= q08_seconds_before_purchase)
-                                && (last_sales_sk != Long.valueOf(curr.f2))) {
-                            last_sales_sk = Long.valueOf(curr.f2);
-                            tuple.f0 = Long.valueOf(curr.f2);
+                        if ((cache.f1 > 0) && ((tstamp_inSec - cache.f1) <= q08_seconds_before_purchase)
+                                && (cache.f2 != Long.valueOf(curr.f2))) {
+                            cache.setField(Long.valueOf(curr.f2), 2);
+                            tuple.setField(Long.valueOf(curr.f2), 0);
                             out.collect(tuple);
                         }
                     }
