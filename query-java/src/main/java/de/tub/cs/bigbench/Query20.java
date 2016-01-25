@@ -20,15 +20,28 @@ import java.util.Set;
 /**
  * Created by gm on 19/11/15.
  */public class Query20 {
-    //public static final String store_sales_mask = "00110000010000000000100";
-    //public static final String store_returns_mask = "00110000010100000000";
+    public static String q20_store_sales_mask;
+    public static String q20_store_returns_mask;
 
-    //public static final String store_sales_path = "/Users/gm/bigbench/data-generator/output/store_sales.dat";
-    //public static final String store_returns_path= "/Users/gm/bigbench/data-generator/output/store_returns.dat";
+    public static String input_path;
+    public static String output_path;
+    public static String temp_path;
+    public static  String store_sales_path;
+    public static  String store_returns_path;
 
     public static void main(String[] args) throws Exception {
 
         final ExecutionEnvironment env = ExecutionEnvironment.getExecutionEnvironment();
+        PropertiesConfiguration config = new PropertiesConfiguration("config.properties");
+
+        if(parseParameters(args) == 1)
+            return;
+
+        q20_store_sales_mask = config.getString("q20_store_sales_mask");
+        q20_store_returns_mask = config.getString("q20_store_returns_mask");
+
+        store_sales_path = input_path + "/store_sales/store_sales.dat";
+        store_returns_path = input_path + "/store_returns/store_returns.dat";
 
         // get input data
 
@@ -39,24 +52,24 @@ import java.util.Set;
         DataSet<Store> store_returns = getStoreReturnsDataSet(env);
 
         DataSet<Order> orders =
-                store_sales
-                        .groupBy(1)
-                        .reduceGroup(new GroupReduce());
+            store_sales
+                .groupBy(1)
+                .reduceGroup(new GroupReduce());
 
 
         DataSet<Order> returned =
-                store_returns
-                        .groupBy(1)
-                        .reduceGroup(new GroupReduce());
+            store_returns
+                .groupBy(1)
+                .reduceGroup(new GroupReduce());
 
-        DataSet<Result> results =
-                orders
-                        .leftOuterJoin(returned)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new SalesLeftOuterJoinReturned());
+        DataSet<Result> result =
+            orders
+                .leftOuterJoin(returned)
+                .where(0)
+                .equalTo(0)
+                .with(new SalesLeftOuterJoinReturned());
 
-        returned.writeAsCsv("/tmp/query20.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
+        result.writeAsCsv(temp_path, "\n", " ", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
         // execute program
         env.execute("Query20");
@@ -157,20 +170,31 @@ import java.util.Set;
     //     UTIL METHODS
     // *************************************************************************
 
+    private static int parseParameters(String[] args){
+        if(args.length == 3){
+            input_path = args[0];
+            output_path = args[1];
+            temp_path = args[2];
+            return 0;
+        }
+        else{
+            System.err.println("Usage: Each query needs 3 arguments.");
+            return 1;
+        }
+    }
+
     private static DataSet<Store> getStoreSalesDataSet(ExecutionEnvironment env) throws ConfigurationException {
-        PropertiesConfiguration config = new PropertiesConfiguration("config.properties");
-        return env.readCsvFile(config.getString("q20_store_sales_path"))
+        return env.readCsvFile(store_sales_path)
                 .fieldDelimiter("|")
-                .includeFields(config.getString("q20_store_sales_mask"))
+                .includeFields(q20_store_sales_mask)
                 .ignoreInvalidLines()
                 .tupleType(Store.class);
     }
 
     private static DataSet<Store> getStoreReturnsDataSet(ExecutionEnvironment env) throws ConfigurationException {
-        PropertiesConfiguration config = new PropertiesConfiguration("config.properties");
-        return env.readCsvFile(config.getString("q20_store_returns_path"))
+        return env.readCsvFile(store_returns_path)
                 .fieldDelimiter("|")
-                .includeFields(config.getString("q20_store_returns_mask"))
+                .includeFields(q20_store_returns_mask)
                 .ignoreInvalidLines()
                 .tupleType(Store.class);
     }
