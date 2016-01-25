@@ -21,5 +21,5 @@ MasterThesis
 **Queries: 02, 04, 07, 09, 12, 14, 21, 22, 26, 28**
 
 ### Guido - Java
-**Tested queries: 01, 06, 08, 11, 13, 15, 17, 24, 25, 29**
-**Other implemented queries: 05, 20 (included into the flink_0.10 branch)**
+*Tested queries: 01, 06, 08, 11, 13, 15, 17, 24, 25, 29*
+*Other implemented queries: 05, 20 (included into the flink_0.10 branch)*
