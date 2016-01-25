@@ -48,14 +48,14 @@ import java.util.Set;
                 store_returns
                         .groupBy(1)
                         .reduceGroup(new GroupReduce());
-/*
+
         DataSet<Result> results =
                 orders
                         .leftOuterJoin(returned)
                         .where(0)
                         .equalTo(0)
                         .with(new SalesLeftOuterJoinReturned());
-*/
+
         returned.writeAsCsv("/tmp/query20.csv", FileSystem.WriteMode.OVERWRITE).setParallelism(1);
 
         // execute program
