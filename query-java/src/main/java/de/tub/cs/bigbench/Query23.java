@@ -1,11 +1,11 @@
 package de.tub.cs.bigbench;
 
 import org.apache.commons.configuration.PropertiesConfiguration;
-import org.apache.flink.api.common.functions.FilterFunction;
-import org.apache.flink.api.common.functions.GroupReduceFunction;
-import org.apache.flink.api.common.functions.JoinFunction;
-import org.apache.flink.api.common.functions.MapFunction;
+import org.apache.flink.api.common.JobExecutionResult;
+import org.apache.flink.api.common.functions.*;
 import org.apache.flink.api.common.operators.Order;
+import org.apache.flink.api.common.operators.base.JoinOperatorBase;
+import org.apache.flink.api.common.operators.base.JoinOperatorBase.JoinHint;
 import org.apache.flink.api.java.DataSet;
 import org.apache.flink.api.java.ExecutionEnvironment;
 import org.apache.flink.api.java.functions.FunctionAnnotation;
@@ -54,7 +54,7 @@ public class Query23 {
 
         DataSet<Tuple4<Long, Long, Integer, Integer>> joined =
                 inventory
-                        .join(date_dim)
+                        .join(date_dim, JoinHint.REPARTITION_HASH_FIRST)
                         .where(0)
                         .equalTo(0)
                         .with(new InventoryJoinDateDim());
@@ -66,7 +66,7 @@ public class Query23 {
 
         DataSet<Tuple5<Long, Long, Integer, Double, Double>> q23_tmp_inv_part =
                 joined
-                        .join(avg)
+                        .join(avg, JoinHint.REPARTITION_HASH_FIRST)
                         .where(0, 1, 2)
                         .equalTo(0, 1, 2)
                         .with(new JoinedJoinAvg())
@@ -77,6 +77,13 @@ public class Query23 {
                 q23_tmp_inv_part
                         .filter(new MeanStdDev())
                         .map(new Ratio());
+/*
+        DataSet<Tuple6<Long, Long, Integer, Double, Integer, Double>> result =
+                temp_table
+                        .groupBy(0)
+                        .sortGroup(1, Order.ASCENDING)
+                        .reduceGroup(new SortedFilter());*/
+
 
         DataSet<Tuple4<Long, Long, Integer, Double>> inv1 =
                 temp_table
@@ -87,8 +94,8 @@ public class Query23 {
                         .filter(new Inv2FilterMonth());
 
         DataSet<Tuple6<Long, Long, Integer, Double, Integer, Double>> result =
-                inv1
-                        .join(inv2)
+                inv2
+                        .join(inv1, JoinHint.REPARTITION_SORT_MERGE)
                         .where(0, 1)
                         .equalTo(0, 1)
                         .with(new SelfJoinInv())
@@ -115,6 +122,8 @@ public class Query23 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f2->f0; f1; f3")
+    @FunctionAnnotation.ForwardedFieldsSecond("f2")
     public static class InventoryJoinDateDim implements JoinFunction<Inventory, DateDim, Tuple4<Long, Long, Integer, Integer>>{
 
         private Tuple4<Long, Long, Integer, Integer> out = new Tuple4<>();
@@ -148,6 +157,8 @@ public class Query23 {
         }
     }
 
+    @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3->f4")
+    @FunctionAnnotation.ForwardedFieldsSecond("f3")
     public static class JoinedJoinAvg implements JoinFunction<Tuple4<Long, Long, Integer, Integer>,
             Tuple4<Long, Long, Integer, Double>, Tuple5<Long, Long, Integer, Double, Integer>>{
 
@@ -223,6 +234,7 @@ public class Query23 {
     }
 
     @FunctionAnnotation.ForwardedFieldsFirst("f0; f1; f2; f3")
+    @FunctionAnnotation.ForwardedFieldsSecond("f2->f4; f3->f5")
     public static class SelfJoinInv implements JoinFunction<Tuple4<Long, Long, Integer, Double>, Tuple4<Long, Long, Integer, Double>,
             Tuple6<Long, Long, Integer, Double, Integer, Double>>{
 
@@ -233,6 +245,40 @@ public class Query23 {
                                                                          Tuple4<Long, Long, Integer, Double> inv2) throws Exception {
             out.f0 = inv1.f0; out.f1 = inv1.f1; out.f2 = inv1.f2; out.f3 = inv1.f3; out.f4 = inv2.f2; out.f5 = inv2.f3;
             return out;
+        }
+    }
+
+    public static class SortedFilter implements GroupReduceFunction<Tuple4<Long, Long, Integer, Double>, Tuple6<Long, Long, Integer, Double, Integer, Double>> {
+
+        private Tuple6<Long, Long, Integer, Double, Integer, Double> tuple = new Tuple6<>();
+        private Double cov = -1.0;
+        private Double cov_consecutive = -1.0;
+
+        @Override
+        public void reduce(Iterable<Tuple4<Long, Long, Integer, Double>> in, Collector<Tuple6<Long, Long, Integer, Double, Integer, Double>> out) {
+            Long warehouse = null;
+            Long item = null;
+            Long next_item = null;
+
+            for (Tuple4<Long, Long, Integer, Double> curr : in) {
+                warehouse = curr.f0;
+                next_item = curr.f1;
+                if (curr.f2.equals(q23_month))
+                    cov = curr.f3;
+                if (curr.f2.equals(q23_month + 1))
+                    cov_consecutive = curr.f3;
+
+                if(item != null && item.equals(next_item)){
+                    tuple.f0 = warehouse;
+                    tuple.f1 = item;
+                    tuple.f2 = q23_month;
+                    tuple.f3 = cov;
+                    tuple.f4 = q23_month + 1;
+                    tuple.f5 = cov_consecutive;
+                    out.collect(tuple);
+                }
+                item = next_item;
+            }
         }
     }
 
