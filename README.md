@@ -1,31 +1,16 @@
-# MasterThesisTest
-MasterThesisTest
+# Master Thesis Flink
+Big Bench Java implementation running on Flink
 
-*How to use Big-Bench-Flink*
+*How to use the Big Bench Flink engine*
 
 **Environment Variable in run.sh**
-- SCALA_QUERIES+=(2 4 7 9 12 14 21 22 26 28)
-- JAVA_QUERIES+=(1 5 6 8 11 13 15 17 24 25 29)
+- JAVA_QUERIES+=(1 5 6 8 11 13 15 17 20 23 24 25 29)
 - PACKAGE_NAME="de.tub.cs.bigbench."
-- JAR_NAME_SCALA="flink_scala.jar"
 - JAR_NAME_JAVA="flink_java.jar"
-- REST_QUERIES+=(3 10 16 18 19 20 23 27 30)
 
-*Please make jar_package file like the above configuration then move it to engines/flink/queries/*
+*The jar file needs to be moved to the engines/flink/queries/*
 
-*Then you can run a commend line >>* **./bin/bigBench runQuery -q 30 -U -b**
+*Command line >>* **./bin/bigBench runQuery -q [number] -U -b**
 
-
-
-
-*Query Folder Scala from Philip, Java from Guido*
-
-### Philip 
-**Query: 02, 04, 07, 09, 12, 14, 21, 22, 26, 28**
-
-### Guido
-**Query: 01 (done), 05 (done-spark), 06 (done), 8 (done), 11 (done), 13 (done), 15 (done), 17 (done), 24 (done), 25 (done-spark) 29 (done)**
-
-**Check data-generation on cluster: command: git clone "repository big-bench" takes the master branch and the pfdg.jar is not up-to-date**
-
-**We have to make a document about Flink API compatitable to Hive Functino on Google Docs**
+*Tested queries: 01, 06, 08, 11, 13, 15, 17, 24, 25, 29*  
+*Other implemented queries: 05, 20 (included into the flink_0.10 branch)*
