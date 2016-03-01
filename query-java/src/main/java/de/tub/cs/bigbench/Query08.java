@@ -69,61 +69,60 @@ public class Query08 {
         //web_sales-> ws.ws_sold_date_sk (Long), ws_order_number (Long),  ws_net_paid (Double)
         DataSet<WebSales> web_sales = getWebSalesDataSet(env);
 
-
         //Filter by year
         DataSet<Tuple1<Long>> dd =
-                date_dim
-                        .filter(new FilterDateDim())
-                        .project(0);
-
+            date_dim
+            .filter(new FilterDateDim())
+            .project(0);
 
         DataSet<Tuple4<Long, Long, String, String>> q08_map_output =
-                web_clickstreams
-                        .join(dd, BROADCAST_HASH_SECOND)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new WebClickStreamLeftJoinDD())
-                        .join(web_page, BROADCAST_HASH_SECOND)
-                        .where(3)
-                        .equalTo(0)
-                        .with(new WebClickStreamJoinWebPage())
-                        .sortPartition(0, Order.ASCENDING).setParallelism(1)
-                        .sortPartition(1, Order.ASCENDING).setParallelism(1)
-                        .sortPartition(2, Order.ASCENDING).setParallelism(1)
-                        .sortPartition(3, Order.ASCENDING).setParallelism(1);
+            web_clickstreams
+                .join(dd, BROADCAST_HASH_SECOND)
+                .where(0)                                               //wcs_click_date_sk
+                .equalTo(0)                                             //d_date_sk
+                .with(new WebClickStreamLeftJoinDD())
+                .join(web_page, BROADCAST_HASH_SECOND)
+                .where(3)                                               //wcs_web_page_sk
+                .equalTo(0)                                             //w.wp_web_page_sk
+                .with(new WebClickStreamJoinWebPage())
+                .sortPartition(0, Order.ASCENDING).setParallelism(1)    //wcs_user_sk
+                .sortPartition(1, Order.ASCENDING).setParallelism(1)    //tstamp_inSec
+                .sortPartition(2, Order.ASCENDING).setParallelism(1)    //wcs_sales_sk
+                .sortPartition(3, Order.ASCENDING).setParallelism(1);   //wp_type
 
         DataSet<Tuple1<Long>> salesWithViewedReviews =
-                q08_map_output
-                        .reduceGroup(new FilterSalesReview())
-                        .groupBy(0)
-                        .first(1);;
+            q08_map_output
+                .reduceGroup(new FilterSalesReview())                   //python filter
+                .groupBy(0)
+                .aggregate(Aggregations.SUM, 1)
+                .project(0);
 
         DataSet<Tuple2<Double, Long>> allSalesInYear =
-                web_sales
-                        .join(dd)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new WebSalesJoinDD());
+            web_sales
+                .join(dd)
+                .where(0)
+                .equalTo(0)
+                .with(new WebSalesJoinDD());
 
         DataSet<Tuple2<Integer, Double>> q08_all_sales =
-                allSalesInYear
-                        .reduceGroup(new MyGroupReducer());
+            allSalesInYear
+                .reduceGroup(new MyGroupReducer());
 
         DataSet<Tuple2<Integer, Double>> q08_review_sales =
-                allSalesInYear
-                        .join(salesWithViewedReviews)
-                        .where(1)
-                        .equalTo(0)
-                        .with(new AllSalesLeftJoinSalesReviews())
-                        .groupBy(0)
-                        .aggregate(Aggregations.SUM, 1);
+            allSalesInYear
+                .join(salesWithViewedReviews)
+                .where(1)
+                .equalTo(0)
+                .with(new AllSalesLeftJoinSalesReviews())
+                .groupBy(0)
+                .aggregate(Aggregations.SUM, 1);
 
         DataSet<Tuple2<Double, Double>> result =
-                q08_review_sales
-                        .join(q08_all_sales)
-                        .where(0)
-                        .equalTo(0)
-                        .with(new RSJoinAS());
+            q08_review_sales
+                .join(q08_all_sales)
+                .where(0)
+                .equalTo(0)
+                .with(new RSJoinAS());
 
         result.writeAsCsv(output_path, "\n", ",", FileSystem.WriteMode.OVERWRITE);
 
